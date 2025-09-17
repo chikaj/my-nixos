@@ -40,9 +40,9 @@ if [ "$PASSWORD" != "$PASSWORD2" ]; then
   exit 1
 fi
 
-CONFIG_TEMPLATE=./configuration-template.nix
-FLAKE_TEMPLATE=./flake-template.nix
-HOME_TEMPLATE=./home-template.nix
+CONFIG_TEMPLATE=./nixos/configuration-template.nix
+FLAKE_TEMPLATE=./nixos/flake-template.nix
+HOME_TEMPLATE=./nixos/home-template.nix
 
 CONFIG_OUTPUT=./configuration.nix
 FLAKE_OUTPUT=./flake.nix

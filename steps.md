@@ -14,7 +14,7 @@
 
 #### Disko Partitioning
 
-  ```nix-shell -p nixpkgs#git --run 'git clone https://github.com/chikaj/my-nixos.git'```
+  * Run ```nix-shell -p nixpkgs#git --run 'git clone https://github.com/chikaj/my-nixos.git'```
 
   * Follow the prompts to partition and encrypt your drive
   * Check the mounted partitions, files and templating for completeness

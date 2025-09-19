@@ -31,7 +31,24 @@ rm -f /tmp/secret.key
 
 echo "Disk partitioning complete. Proceed with NixOS install steps."
 
-# After Disko, filesystems are mounted at /mnt
+# === MOUNT PARTITIONS ===
+# Unlock LUKS root
+sudo cryptsetup open /dev/disk/by-partlabel/cryptroot cryptroot
+
+# Mount root subvolume
+sudo mount -o subvol=root /dev/mapper/cryptroot /mnt
+
+# Create directories for other subvolumes
+sudo mkdir -p /mnt/{nix,home,persist,boot}
+
+# Mount other Btrfs subvolumes
+sudo mount -o subvol=nix /dev/mapper/cryptroot /mnt/nix
+sudo mount -o subvol=home /dev/mapper/cryptroot /mnt/home
+sudo mount -o subvol=persist /dev/mapper/cryptroot /mnt/persist
+
+# Mount EFI partition
+sudo mount -t vfat /dev/disk/by-partlabel/ESP /mnt/boot
+# === END MOUNT ===
 
 # Query user information
 read -p "Enter desired hostname: " HOSTNAME

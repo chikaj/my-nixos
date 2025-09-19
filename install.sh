@@ -2,9 +2,50 @@
 
 # Disko and partitioning step:
 # Run your disk-config.sh here (it uses disko-config-template.nix)
-./disko/disko-config.sh
+# ./disko/disko-config.sh
+echo "Enter your target device (e.g., /dev/nvme2n1):"
+read DEVICENAME
+
+echo "Enter your desired LUKS password:"
+read -s -p LUKSPASS
+
+echo
+read -s -p "Confirm LUKS password: " LUKSPASS2
+echo
+if [ "$LUKSPASS" != "$LUKSPASS2" ]; then
+  echo "Passwords do not match!" >&2
+  exit 1
+fi
+
+# Write password to a temporary keyfile
+echo -n "$LUKSPASS" > /tmp/secret.key
+
+# Copy and modify template disko-config, replacing device name
+sed "s|/dev/mydisk|$DEVICENAME|g" ./disko/disko-config-template.nix > ./disko-config.nix
+
+# Trigger disko with supplied config and password
+sudo nix --extra-experimental-features 'nix-command flakes' run github:nix-community/disko -- --mode disko ./disko-config.nix
+
+# Remove temporary keyfile after partitioning for security
+rm -f /tmp/secret.key
+
+echo "Disk partitioning complete. Proceed with NixOS install steps."
 
 # After Disko, filesystems are mounted at /mnt
+
+# Query user information
+read -p "Enter desired hostname: " HOSTNAME
+timedatectl list-timezones
+read -p "Enter desired time zone: " TIMEZONE
+read -p "Enter desired username: " USERNAME
+read -s -p "Enter password: " PASSWORD
+echo
+read -s -p "Confirm password: " PASSWORD2
+echo
+if [ "$PASSWORD" != "$PASSWORD2" ]; then
+  echo "Passwords do not match!" >&2
+  exit 1
+fi
 
 # Generate hardware config
 nixos-generate-config --root /mnt
@@ -24,20 +65,6 @@ NVIDIA_BLOCK='
 
 if grep -qi 'nvidia' /mnt/etc/nixos/hardware-configuration.nix || [ "$(lspci | grep -i 'nvidia' | wc -l)" -gt 0 ]; then
     sed -i "/^}/i ${NVIDIA_BLOCK}" /mnt/etc/nixos/configuration.nix
-fi
-
-# Query user information
-read -p "Enter desired hostname: " HOSTNAME
-timedatectl list-timezones
-read -p "Enter desired time zone: " TIMEZONE
-read -p "Enter desired username: " USERNAME
-read -s -p "Enter password: " PASSWORD
-echo
-read -s -p "Confirm password: " PASSWORD2
-echo
-if [ "$PASSWORD" != "$PASSWORD2" ]; then
-  echo "Passwords do not match!" >&2
-  exit 1
 fi
 
 CONFIG_TEMPLATE=./nixos/configuration-template.nix

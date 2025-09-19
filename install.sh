@@ -5,6 +5,10 @@ set -euo pipefail
 # Disko and partitioning step:
 echo "Enter your target device (e.g., /dev/nvme2n1):"
 read DEVICENAME
+if [ -z "$DEVICENAME" ]; then
+    echo "Error: DEVICENAME is not set." >&2
+    exit 1
+fi
 
 echo 
 read -s -p "Enter your desired LUKS password: " LUKSPASS
@@ -13,7 +17,7 @@ echo
 read -s -p "Confirm desired LUKS password: " LUKSPASS2
 echo
 if [ "$LUKSPASS" != "$LUKSPASS2" ]; then
-  echo "Passwords do not match!" >&2
+  echo "LUKS passwords do not match!" >&2
   exit 1
 fi
 
@@ -33,14 +37,14 @@ echo "Disk partitioning complete. Proceeding with NixOS install steps."
 
 # === MOUNT PARTITIONS ===
 # Detect LUKS partition dynamically
-CRYPTROOT=$(lsblk -o NAME,TYPE,FSTYPE -ln -p | awk '$3=="crypto_LUKS"{print "/dev/" $1}' | head -n1)
+CRYPTROOT=$(lsblk -o NAME,TYPE,FSTYPE -ln "$DEVICENAME" | awk '$3=="crypto_LUKS"{print "/dev/" $1}' | head -n1)
 if [ -z "$CRYPTROOT" ]; then
     echo "Error: No LUKS partition found." >&2
     exit 1
 fi
 
 # Detect EFI partition dynamically (vfat + bootable)
-EFI=$(lsblk -o NAME,TYPE,FSTYPE,PARTFLAGS -ln -p | awk '$3=="vfat" && $4 ~ /boot/ {print "/dev/" $1}' | head -n1)
+EFI=$(lsblk -o NAME,TYPE,FSTYPE -ln "$DEVICENAME" | awk '$2=="part" && $3=="vfat" {print "/dev/" $1}' | head -n1)
 if [ -z "$EFI" ]; then
     # Fallback: first vfat if boot flag not set
     EFI=$(lsblk -o NAME,TYPE,FSTYPE -ln -p | awk '$3=="vfat"{print "/dev/" $1}' | head -n1)
@@ -71,15 +75,29 @@ sudo mount -t vfat "$EFI" /mnt/boot
 
 # Query user information
 read -p "Enter desired hostname: " HOSTNAME
+if [ -z "$HOSTNAME" ]; then
+    echo "Error: HOSTNAME is not set." >&2
+    exit 1
+fi
 # timedatectl list-timezones
 read -p "Enter desired time zone (e.g., America/Chicago): " TIMEZONE
+if [ -z "$TIMEZONE" ]; then
+    echo "Error: TIMEZONE is not set." >&2
+    exit 1
+fi
+
 read -p "Enter desired username: " USERNAME
+if [ -z "$USERNAME" ]; then
+    echo "Error: USERNAME is not set." >&2
+    exit 1
+fi
+
 read -s -p "Enter password: " PASSWORD
 echo
 read -s -p "Confirm password: " PASSWORD2
 echo
 if [ "$PASSWORD" != "$PASSWORD2" ]; then
-  echo "Passwords do not match!" >&2
+  echo "User passwords do not match!" >&2
   exit 1
 fi
 

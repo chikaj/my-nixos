@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 # Disko and partitioning step:
-# Run your disk-config.sh here (it uses disko-config-template.nix)
-# ./disko/disko-config.sh
 echo "Enter your target device (e.g., /dev/nvme2n1):"
 read DEVICENAME
 
@@ -29,25 +29,27 @@ sudo nix --extra-experimental-features 'nix-command flakes' run github:nix-commu
 # Remove temporary keyfile after partitioning for security
 rm -f /tmp/secret.key
 
-echo "Disk partitioning complete. Proceed with NixOS install steps."
+echo "Disk partitioning complete. Proceeding with NixOS install steps."
 
 # === MOUNT PARTITIONS ===
-# Unlock LUKS root
-sudo cryptsetup open /dev/disk/by-partlabel/cryptroot cryptroot
+CRYPTROOT=$(ls /dev/disk/by-partlabel/cryptroot | head -n1 || echo "/dev/mapper/cryptroot")
+EFI=$(ls /dev/disk/by-partlabel/ESP | head -n1 || echo "/dev/disk/by-partuuid/...")
 
-# Mount root subvolume
-sudo mount -o subvol=root /dev/mapper/cryptroot /mnt
+# Unlock LUKS root if needed
+if ! mount | grep -q "/mnt "; then
+    sudo cryptsetup open "$CRYPTROOT" cryptroot
+fi
 
-# Create directories for other subvolumes
+# Create mount points
 sudo mkdir -p /mnt/{nix,home,persist,boot}
 
-# Mount other Btrfs subvolumes
-sudo mount -o subvol=nix /dev/mapper/cryptroot /mnt/nix
-sudo mount -o subvol=home /dev/mapper/cryptroot /mnt/home
-sudo mount -o subvol=persist /dev/mapper/cryptroot /mnt/persist
+# Dynamically detect Btrfs subvolumes and mount
+for subvol in root nix home persist; do
+    sudo mount -o subvol="$subvol" /dev/mapper/cryptroot "/mnt/${subvol/root/}" || true
+done
 
 # Mount EFI partition
-sudo mount -t vfat /dev/disk/by-partlabel/ESP /mnt/boot
+sudo mount -t vfat "$EFI" /mnt/boot
 # === END MOUNT ===
 
 # Query user information
@@ -93,18 +95,15 @@ FLAKE_OUTPUT=./flake.nix
 HOME_FILE="/home/${USERNAME}/.config/home-manager/home.nix"
 
 # Substitute variables into config template
-sed \
-   s|HOSTNAME|$HOSTNAME|g; \
-   s|TIMEZONE|$TIMEZONE|g; \
-  "s|USERNAME|$USERNAME|g; \
-   s|PASSWORD|$PASSWORD|g" \
-  "$CONFIG_TEMPLATE" > "$CONFIG_OUTPUT"
+sed -e "s|HOSTNAME|$HOSTNAME|g" \
+    -e "s|TIMEZONE|$TIMEZONE|g" \
+    -e "s|USERNAME|$USERNAME|g" \
+    -e "s|PASSWORD|$PASSWORD|g" \
+    "$CONFIG_TEMPLATE" > "$CONFIG_OUTPUT"
 
-# Substitute variables into flake.nix template
-sed \
-  "s|HOSTNAME|$HOSTNAME|g; \
-    s|USERNAME|$USERNAME|g" \
-  "$FLAKE_TEMPLATE" > "$FLAKE_OUTPUT"
+sed -e "s|HOSTNAME|$HOSTNAME|g" \
+    -e "s|USERNAME|$USERNAME|g" \
+    "$FLAKE_TEMPLATE" > "$FLAKE_OUTPUT"
 
 # Substitute and create user's home-manager config in their home directory
 mkdir -p "$(dirname "${HOME_FILE}")"

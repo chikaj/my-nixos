@@ -65,37 +65,8 @@ in
   # Unlock LUKS early for initramfs
   boot.initrd.luks.devices = {
     cryptroot = {
-      device = "/dev/disk/by-partlabel/cryptroot";  # your LUKS partition (from Disko)
+      device = "/dev/mapper/cryptroot";
       preLVM = true;
-    };
-  };
-
-  # File system mounts (Btrfs subvolumes + EFI)
-  fileSystems = {
-    "/" = {
-      device = "/dev/mapper/cryptroot";
-      fsType = "btrfs";
-      options = [ "subvol=root" "noatime" "compress=zstd" ];
-    };
-    "/nix" = {
-      device = "/dev/mapper/cryptroot";
-      fsType = "btrfs";
-      options = [ "subvol=nix" "noatime" "compress=zstd" ];
-    };
-    "/home" = {
-      device = "/dev/mapper/cryptroot";
-      fsType = "btrfs";
-      options = [ "subvol=home" "noatime" "compress=zstd" ];
-    };
-    "/persist" = {
-      device = "/dev/mapper/cryptroot";
-      fsType = "btrfs";
-      options = [ "subvol=persist" "noatime" "compress=zstd" ];
-    };
-    "/boot" = {
-      device = "/dev/disk/by-partlabel/ESP";
-      fsType = "vfat";
-      options = [ "umask=0077" ];
     };
   };
 

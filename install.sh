@@ -32,8 +32,23 @@ rm -f /tmp/secret.key
 echo "Disk partitioning complete. Proceeding with NixOS install steps."
 
 # === MOUNT PARTITIONS ===
-CRYPTROOT=$(ls /dev/disk/by-partlabel/cryptroot | head -n1 || echo "/dev/mapper/cryptroot")
-EFI=$(ls /dev/disk/by-partlabel/ESP | head -n1 || echo "/dev/disk/by-partuuid/...")
+# Detect LUKS partition dynamically
+CRYPTROOT=$(lsblk -o NAME,TYPE,FSTYPE -ln -p | awk '$3=="crypto_LUKS"{print "/dev/" $1}' | head -n1)
+if [ -z "$CRYPTROOT" ]; then
+    echo "Error: No LUKS partition found." >&2
+    exit 1
+fi
+
+# Detect EFI partition dynamically (vfat + bootable)
+EFI=$(lsblk -o NAME,TYPE,FSTYPE,PARTFLAGS -ln -p | awk '$3=="vfat" && $4 ~ /boot/ {print "/dev/" $1}' | head -n1)
+if [ -z "$EFI" ]; then
+    # Fallback: first vfat if boot flag not set
+    EFI=$(lsblk -o NAME,TYPE,FSTYPE -ln -p | awk '$3=="vfat"{print "/dev/" $1}' | head -n1)
+fi
+if [ -z "$EFI" ]; then
+    echo "Error: No EFI partition found." >&2
+    exit 1
+fi
 
 # Unlock LUKS root if needed
 if ! mount | grep -q "/mnt "; then
@@ -43,9 +58,11 @@ fi
 # Create mount points
 sudo mkdir -p /mnt/{nix,home,persist,boot}
 
-# Dynamically detect Btrfs subvolumes and mount
+# Mount Btrfs subvolumes
 for subvol in root nix home persist; do
-    sudo mount -o subvol="$subvol" /dev/mapper/cryptroot "/mnt/${subvol/root/}" || true
+    target="/mnt"
+    [ "$subvol" != "root" ] && target="/mnt/$subvol"
+    sudo mount -o subvol="$subvol",compress=zstd,noatime /dev/mapper/cryptroot "$target"
 done
 
 # Mount EFI partition

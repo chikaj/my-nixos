@@ -21,7 +21,7 @@ in
     description = "Desktop Owner";
     extraGroups = [ "wheel" "networkmanager" ];
     shell = pkgs.zsh;
-    initialPassword = password; # Remove after first boot
+    initialPassword = password;
   };
 
   # Basic packages and DE/WM
@@ -61,6 +61,25 @@ in
   # Memory optimization: ZRAM and swappiness
   services.zramSwap.enable = true;
   boot.kernel.sysctl."vm.swappiness" = 10;
+
+  # Unlock LUKS early for initramfs
+  boot.initrd.luks.devices = {
+    cryptroot = {
+      device = "/dev/disk/by-partlabel/cryptroot";  # your LUKS partition (from Disko)
+      preLVM = true;
+    };
+  };
+
+  # Swap file inside encrypted root
+  swapDevices = [
+    {
+      device = "/swap/swapfile";  # will be created automatically by NixOS
+      size = 256 * 1024 * 1024;    # GiB in KiB. Set to be equal to or greater than system RAM!
+    }
+  ];
+
+  # Hibernation support
+  boot.kernelParams = [ "resume=/swap/swapfile" ];
 
   system.stateVersion = "25.05"; # Set accordingly
 }

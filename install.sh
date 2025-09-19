@@ -52,8 +52,8 @@ sudo mount -t vfat /dev/disk/by-partlabel/ESP /mnt/boot
 
 # Query user information
 read -p "Enter desired hostname: " HOSTNAME
-timedatectl list-timezones
-read -p "Enter desired time zone: " TIMEZONE
+# timedatectl list-timezones
+read -p "Enter desired time zone (e.g., America/Chicago): " TIMEZONE
 read -p "Enter desired username: " USERNAME
 read -s -p "Enter password: " PASSWORD
 echo

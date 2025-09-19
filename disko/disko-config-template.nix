@@ -3,7 +3,7 @@
     disk = {
       main = {
         type = "disk";
-        device = "/dev/mydiak"; # Change this to match your actual disk! Like nvme2n1
+        device = "/dev/mydisk"; # Change this to match your actual disk! Like nvme2n1
         content = {
           type = "gpt";
           partitions = {

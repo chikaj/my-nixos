@@ -58,5 +58,9 @@ in
   #     fi
   #   '';
 
+  # Memory optimization: ZRAM and swappiness
+  services.zramSwap.enable = true;
+  boot.kernel.sysctl."vm.swappiness" = 10;
+
   system.stateVersion = "25.05"; # Set accordingly
 }

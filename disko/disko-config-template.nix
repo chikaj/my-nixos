@@ -14,6 +14,7 @@
               content = {
                 type = "filesystem";
                 format = "vfat";
+                label = "ESP";
                 mountpoint = "/boot";
               };
             };

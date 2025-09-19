@@ -4,7 +4,7 @@ echo "Enter your target device (e.g., /dev/nvme2n1):"
 read DEVICENAME
 
 echo "Enter your desired LUKS password:"
-read -s LUKSPASS
+read -s -p LUKSPASS
 
 echo
 read -s -p "Confirm LUKS password: " LUKSPASS2

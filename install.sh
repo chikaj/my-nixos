@@ -59,8 +59,15 @@ if ! mount | grep -q "/mnt "; then
     sudo cryptsetup open "$CRYPTROOT" cryptroot
 fi
 
+# Mount root subvolume only
+for subvol in root; do
+    target="/mnt"
+    sudo mount -o subvol="$subvol",compress=zstd,noatime /dev/mapper/cryptroot "$target"
+done
+
 # Create mount points
-sudo mkdir -p /mnt/{nix,home,persist,boot}
+sudo mkdir -p /mnt/{etc,nix,home,persist,boot}
+sudo mkdir -p /mnt/etc/nixos
 
 # Mount Btrfs subvolumes
 for subvol in root nix home persist; do

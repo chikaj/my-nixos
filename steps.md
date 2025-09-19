@@ -8,13 +8,11 @@
 
   * Use lsblk or fdisk to inspect disk devices.
 
-  * Download your installation/config scripts or files (using curl, wget, or nix shell nixpkgs#git to get git).
-
 4. From the terminal, run:
 
 #### Disko Partitioning
 
-  * Run ```nix-shell -p nixpkgs#git --run 'git clone https://github.com/chikaj/my-nixos.git'```
+  * Run ```git clone https://github.com/chikaj/my-nixos.git```
 
   * Follow the prompts to partition and encrypt your drive
   * Check the mounted partitions, files and templating for completeness

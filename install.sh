@@ -1,185 +1,270 @@
 #!/usr/bin/env bash
 
+# Main NixOS Installation Orchestrator
+# Coordinates the modular installation process
 set -euo pipefail
 
-# Disko and partitioning step:
-echo "Enter your target device (e.g., /dev/nvme2n1):"
-read DEVICENAME
-if [ -z "$DEVICENAME" ]; then
-    echo "Error: DEVICENAME is not set." >&2
-    exit 1
-fi
+# Color codes for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
 
-echo 
-read -s -p "Enter your desired LUKS password: " LUKSPASS
+# Logging functions
+log_info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
 
-echo
-read -s -p "Confirm desired LUKS password: " LUKSPASS2
-echo
-if [ "$LUKSPASS" != "$LUKSPASS2" ]; then
-  echo "LUKS passwords do not match!" >&2
-  exit 1
-fi
+log_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
 
-# Write password to a temporary keyfile
-echo -n "$LUKSPASS" > /tmp/secret.key
+log_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
 
-# Copy and modify template disko-config, replacing device name
-sed "s|/dev/mydisk|$DEVICENAME|g" ./disko/disko-config-template.nix > ./disko-config.nix
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1" >&2
+}
 
-# Trigger disko with supplied config and password
-sudo nix --extra-experimental-features 'nix-command flakes' run github:nix-community/disko -- --mode disko ./disko-config.nix
+log_header() {
+    echo -e "${CYAN}=== $1 ===${NC}"
+}
 
-# Remove temporary keyfile after partitioning for security
-rm -f /tmp/secret.key
+# Script directory detection
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MODULES_DIR="${SCRIPT_DIR}/modules"
 
-echo "Disk partitioning complete. Proceeding with NixOS install steps."
+# Module paths
+DISK_MODULE="${MODULES_DIR}/disk.sh"
+CONFIG_MODULE="${MODULES_DIR}/config.sh"
+NIXOS_MODULE="${MODULES_DIR}/nixos.sh"
 
-# === MOUNT PARTITIONS ===
-# Detect LUKS partition dynamically
-CRYPTROOT=$(lsblk -o NAME,TYPE,FSTYPE -ln "$DEVICENAME" | awk '$3=="crypto_LUKS"{print "/dev/" $1}' | head -n1)
-if [ -z "$CRYPTROOT" ]; then
-    echo "Error: No LUKS partition found." >&2
-    exit 1
-fi
+# Check if modules exist
+check_modules() {
+    local missing_modules=()
 
-# Detect EFI partition dynamically (vfat + bootable)
-EFI=$(lsblk -o NAME,TYPE,FSTYPE -ln "$DEVICENAME" | awk '$2=="part" && $3=="vfat" {print "/dev/" $1}' | head -n1)
-if [ -z "$EFI" ]; then
-    # Fallback: first vfat if boot flag not set
-    EFI=$(lsblk -o NAME,TYPE,FSTYPE -ln -p | awk '$3=="vfat"{print "/dev/" $1}' | head -n1)
-fi
-if [ -z "$EFI" ]; then
-    echo "Error: No EFI partition found." >&2
-    exit 1
-fi
+    for module in "$DISK_MODULE" "$CONFIG_MODULE" "$NIXOS_MODULE"; do
+        if [ ! -f "$module" ]; then
+            missing_modules+=("$module")
+        fi
+    done
 
-# Unlock LUKS root if needed
-if ! mount | grep -q "/mnt "; then
-    sudo cryptsetup open "$CRYPTROOT" cryptroot
-fi
+    if [ ${#missing_modules[@]} -gt 0 ]; then
+        log_error "Missing modules:"
+        for module in "${missing_modules[@]}"; do
+            echo "  - $module"
+        done
+        exit 1
+    fi
 
-# Mount root subvolume only
-for subvol in root; do
-    target="/mnt"
-    sudo mount -o subvol="$subvol",compress=zstd,noatime /dev/mapper/cryptroot "$target"
-done
+    log_success "All modules found"
+}
 
-# Create mount points
-sudo mkdir -p /mnt/{etc,nix,home,persist,boot}
-sudo mkdir -p /mnt/etc/nixos
+# Show welcome banner
+show_welcome() {
+    echo -e "${CYAN}"
+    cat << 'EOF'
+ _______  .__
+ \      \ |__|__  _______  ______
+ /   |   \|  \  \/  /  _ \/  ___/
+/    |    \  |>    <  <_> )___ \
+\____|__  /__/__/\_ \____/____  >
+        \/         \/         \/
 
-# Mount Btrfs subvolumes
-for subvol in root nix home persist; do
-    target="/mnt"
-    [ "$subvol" != "root" ] && target="/mnt/$subvol"
-    sudo mount -o subvol="$subvol",compress=zstd,noatime /dev/mapper/cryptroot "$target"
-done
+EOF
+    echo -e "${NC}NixOS Installation Orchestrator${NC}"
+    echo
+}
 
-# Mount EFI partition
-sudo mount -t vfat "$EFI" /mnt/boot
-# === END MOUNT ===
+# Run specific module
+run_module() {
+    local module="$1"
+    local command="${2:-}"
 
-# Query user information
-read -p "Enter desired hostname: " HOSTNAME
-if [ -z "$HOSTNAME" ]; then
-    echo "Error: HOSTNAME is not set." >&2
-    exit 1
-fi
-# timedatectl list-timezones
-read -p "Enter desired time zone (e.g., America/Chicago): " TIMEZONE
-if [ -z "$TIMEZONE" ]; then
-    echo "Error: TIMEZONE is not set." >&2
-    exit 1
-fi
+    log_info "Running module: $(basename "$module")"
 
-read -p "Enter desired username: " USERNAME
-if [ -z "$USERNAME" ]; then
-    echo "Error: USERNAME is not set." >&2
-    exit 1
-fi
+    if [ -n "$command" ]; then
+        bash "$module" "$command"
+    else
+        bash "$module"
+    fi
+}
 
-read -s -p "Enter password: " PASSWORD
-echo
-read -s -p "Confirm password: " PASSWORD2
-echo
-if [ "$PASSWORD" != "$PASSWORD2" ]; then
-  echo "User passwords do not match!" >&2
-  exit 1
-fi
+# Full installation workflow
+full_install() {
+    log_header "Full NixOS Installation"
+    echo
 
-# Generate hardware config
-nixos-generate-config --root /mnt
+    # Run each module in sequence
+    log_info "Phase 1: Disk Setup"
+    run_module "$DISK_MODULE" "setup"
+    echo
 
-# For NVIDIA configuration
-NVIDIA_BLOCK='
-  hardware.nvidia = {
-    modesetting.enable = true;
-    powerManagement.enable = false;
-    nvidiaSettings = true;
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
-    cudaSupport = true;
-    # For specific requirements, add deviceSections or busId options here
-  };
-  services.xserver.videoDrivers = [ "nvidia" ];
-'
+    log_info "Phase 2: Configuration"
+    run_module "$CONFIG_MODULE" "setup"
+    echo
 
-if grep -qi 'nvidia' /mnt/etc/nixos/hardware-configuration.nix || [ "$(lspci | grep -i 'nvidia' | wc -l)" -gt 0 ]; then
-    sed -i "/^}/i ${NVIDIA_BLOCK}" /mnt/etc/nixos/configuration.nix
-fi
+    log_info "Phase 3: NixOS Installation"
+    run_module "$NIXOS_MODULE" "install"
 
-CONFIG_TEMPLATE=./nixos/configuration-template.nix
-FLAKE_TEMPLATE=./nixos/flake-template.nix
-HOME_TEMPLATE=./nixos/home-template.nix
+    echo
+    log_success "Full installation complete!"
+}
 
-CONFIG_OUTPUT=./configuration.nix
-FLAKE_OUTPUT=./flake.nix
-HOME_FILE="/home/${USERNAME}/.config/home-manager/home.nix"
+# Disk setup only
+disk_setup() {
+    log_header "Disk Setup Only"
+    run_module "$DISK_MODULE" "setup"
+}
 
-# Substitute variables into config template
-sed -e "s|HOSTNAME|$HOSTNAME|g" \
-    -e "s|TIMEZONE|$TIMEZONE|g" \
-    -e "s|USERNAME|$USERNAME|g" \
-    -e "s|PASSWORD|$PASSWORD|g" \
-    "$CONFIG_TEMPLATE" > "$CONFIG_OUTPUT"
+# Mount existing filesystems
+mount_only() {
+    log_header "Mount Existing Filesystems"
+    run_module "$DISK_MODULE" "mount"
+}
 
-sed -e "s|HOSTNAME|$HOSTNAME|g" \
-    -e "s|USERNAME|$USERNAME|g" \
-    "$FLAKE_TEMPLATE" > "$FLAKE_OUTPUT"
+# Configuration only
+config_setup() {
+    log_header "Configuration Setup"
+    run_module "$CONFIG_MODULE" "setup"
+}
 
-# Substitute and create user's home-manager config in their home directory
-mkdir -p "$(dirname "${HOME_FILE}")"
-sed "s|USERNAME|$USERNAME|g" "$HOME_TEMPLATE" > "$HOME_FILE"
-chown "${USERNAME}:${USERNAME}" "$HOME_FILE"
+# NixOS installation only
+nixos_install() {
+    log_header "NixOS Installation"
+    run_module "$NIXOS_MODULE" "install"
+}
 
-# Clone your flake repo, if needed:
-# git clone <your-config-repo> /mnt/etc/nixos
+# Quick install (no confirmations)
+quick_install() {
+    log_header "Quick Installation (No Confirmation)"
+    echo
 
-# (Assume disk partitioning is done; mount root at /mnt)
-# Copy configs in place
-cp "$CONFIG_OUTPUT" /mnt/etc/nixos/configuration.nix
-cp "$FLAKE_OUTPUT" /mnt/etc/nixos/flake.nix
+    log_info "Phase 1: Disk Setup"
+    run_module "$DISK_MODULE" "setup"
+    echo
 
-# Optionally copy session files:
-# mkdir -p /mnt/etc/nixos/wayland-sessions
-# cp ./wayland-sessions/*.desktop /mnt/etc/nixos/wayland-sessions/
+    log_info "Phase 2: Configuration"
+    run_module "$CONFIG_MODULE" "setup"
+    echo
 
-echo "All configs are now in /mnt/etc/nixos/."
-echo "Confirm partitions with: lsblk."
-echo "Verify that /mnt/etc/nixos/hardware-configuration.nix exists."
-echo "Verify that configuration.nix and flake.nix are templated correctly"
-echo "Running the following should not return anything."
-echo "  grep HOSTNAME /mnt/etc/nixos/configuration.nix"
-echo "  grep TIMEZONE /mnt/etc/nixos/configuration.nix"
-echo "  grep USERNAME /mnt/etc/nixos/configuration.nix"
-echo "  grep PASSWORD /mnt/etc/nixos/configuration.nix"
-echo "  grep HOSTNAME /mnt/etc/nixos/flake.nix"
-echo "  grep USERNAME /mnt/etc/nixos/flake.nix"
-echo "Confirm mount points with: mount | grep /mnt"
-echo "---"
-echo "All configs are now properly in /mnt/etc/nixos/. Run:"
-echo "  nixos-install --flake /mnt/etc/nixos#$HOSTNAME"
-echo "to complete installation. Then reboot and login as $USERNAME."
+    log_info "Phase 3: NixOS Installation"
+    run_module "$NIXOS_MODULE" "quick"
 
-# Install with flakes:
-# nixos-install --flake /mnt/etc/nixos#${HOSTNAME}
+    echo
+    log_success "Quick installation complete!"
+}
+
+# Show system status
+show_status() {
+    log_header "System Status"
+    echo
+
+    echo "Mount points:"
+    mount | grep /mnt | while read line; do
+        echo "  $line"
+    done
+
+    echo
+    echo "Configuration files:"
+    if [ -d "/mnt/etc/nixos" ]; then
+        ls -la /mnt/etc/nixos/
+    else
+        echo "  No mounted configuration found"
+    fi
+
+    echo
+    echo "Available devices:"
+    lsblk -d -o NAME,SIZE,MODEL
+}
+
+# Show help
+show_help() {
+    cat << EOF
+NixOS Installation Orchestrator
+
+USAGE:
+    $0 [COMMAND]
+
+COMMANDS:
+    full         - Complete installation (disk + config + nixos)
+    disk         - Disk setup and partitioning only
+    mount        - Mount existing filesystems only
+    config       - Configuration setup only
+    nixos        - NixOS installation only
+    quick        - Quick installation (no confirmations)
+    status       - Show current system status
+    help         - Show this help
+
+PHASES:
+    1. Disk setup - Partition and mount filesystems
+    2. Config setup - Generate and copy configuration files
+    3. NixOS install - Install the NixOS system
+
+EXAMPLES:
+    $0 full              # Complete installation with confirmations
+    $0 disk              # Set up disks only
+    $0 config            # Configure only (requires mounted disks)
+    $0 nixos             # Install only (requires configuration)
+    $0 quick             # Install without any confirmations
+
+For module-specific help:
+    $MODULES_DIR/disk.sh help
+    $MODULES_DIR/config.sh help
+    $MODULES_DIR/nixos.sh help
+EOF
+}
+
+# Main execution
+main() {
+    # Check if we're in a NixOS live environment
+    if [ ! -f /etc/nixos/configuration.nix ]; then
+        log_warning "Not running in NixOS live environment"
+        log_warning "This script is designed for NixOS installation from live USB"
+        echo
+    fi
+
+    # Check modules exist
+    check_modules
+
+    case "${1:-full}" in
+        full)
+            show_welcome
+            full_install
+            ;;
+        disk)
+            disk_setup
+            ;;
+        mount)
+            mount_only
+            ;;
+        config)
+            config_setup
+            ;;
+        nixos)
+            nixos_install
+            ;;
+        quick)
+            show_welcome
+            quick_install
+            ;;
+        status)
+            show_status
+            ;;
+        help|--help|-h)
+            show_help
+            ;;
+        *)
+            log_error "Unknown command: $1"
+            echo
+            show_help
+            exit 1
+            ;;
+    esac
+}
+
+# Run main function with all arguments
+main "$@"

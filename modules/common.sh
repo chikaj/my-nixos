@@ -110,7 +110,7 @@ require_root() {
 
 # Check if partitions are mounted
 check_partitions_mounted() {
-    if ! mount | grep -q "/mnt "; then
+    if ! mount | grep -q "/mnt" ; then
         log_error "Partitions are not mounted. Please run disk setup first."
         return 1
     fi

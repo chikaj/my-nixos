@@ -12,7 +12,7 @@ my-nixos/
 │   ├── disk.sh            # Disk partitioning and mounting
 │   ├── config.sh          # Configuration generation and templating
 │   └── nixos.sh           # NixOS system installation
-├── templates/             # Configuration templates
+├── templates/             # All configuration templates
 │   ├── disko-config.nix   # Disk partitioning template
 │   ├── configuration.nix   # System configuration template
 │   ├── flake.nix          # Flake configuration template
@@ -24,6 +24,42 @@ my-nixos/
     └── nixos-install.md   # Installation guide
 ```
 
+## 📶 WiFi Connection (Optional for Laptop Users)
+
+If you're installing on a laptop without an ethernet connection, you'll need to connect to WiFi before starting the installation. The NixOS live ISO includes NetworkManager for easy WiFi management.
+
+### Connect to WiFi
+
+1. **Check NetworkManager status:**
+   ```bash
+   systemctl status NetworkManager
+   ```
+
+2. **List available WiFi networks:**
+   ```bash
+   nmcli device wifi list
+   ```
+   Take note of the SSID for your desired network.
+
+3. **Connect to your WiFi network:**
+   ```bash
+   sudo nmcli device wifi connect "SSID" password "YOUR_PASSWORD"
+   ```
+   Replace `SSID` with your network name and `YOUR_PASSWORD` with your WiFi password.
+
+4. **Verify connection:**
+   ```bash
+   ping -c 3 google.com
+   ```
+
+### Troubleshooting WiFi
+
+- **No WiFi adapter found**: Some laptops may require firmware installation. The installation framework includes automatic WiFi firmware setup.
+- **Connection fails**: Try restarting NetworkManager: `sudo systemctl restart NetworkManager`
+- **Hidden networks**: Use `nmcli device wifi connect SSID password "YOUR_PASSWORD" hidden yes`
+
+**Note**: If WiFi firmware installation is required, you may need to reboot after the firmware is installed for the adapter to work properly.
+
 ## 🚀 Installation Workflow
 
 ### ⚠️ IMPORTANT: Installation Order
@@ -34,32 +70,33 @@ For a fresh NixOS installation, you MUST follow this order:
 2. **Configuration Setup** (Requires mounted disks)
 3. **NixOS Installation** (Requires configuration files)
 
-### 🎯 Entry Point: install.sh
+## 🎯 Entry Point: install.sh
 
 The `install.sh` script is your main entry point. It orchestrates all modules and provides multiple installation methods.
 
 ### 📋 Installation Methods
 
 | Method | Command | When to Use |
-|--------|---------|--------------|
+|--------|---------|-------------|
 | **Full** | `./install.sh full` | Complete guided installation (recommended for beginners) |
 | **Quick** | `./install.sh quick` | Automated installation without confirmations |
-| **Disk Only** | `./install.sh disk` | Phase 1: Partition and mount filesystems |
-| **Config Only** | `./install.sh config` | Phase 2: Generate configuration files (requires completed Phase 1) |
-| **NixOS Only** | `./install.sh nixos` | Phase 3: Install NixOS system (requires completed Phase 2) |
+| **Disk Only** | `./install.sh disk` | **Step 1**: Partition and mount filesystems |
+| **Config Only** | `./install.sh config` | **Step 2**: Generate configuration files (requires completed Step 1) |
+| **NixOS Only** | `./install.sh nixos` | **Step 3**: Install NixOS system (requires completed Step 2) |
 | **Mount Only** | `./install.sh mount` | Mount existing filesystems (for recovery) |
-| **Status** | `./install.sh status` | Check current system status |
+| **Status** | `./install.sh status` | Show current system status |
 
 ## 🔧 Step-by-Step Installation
 
 ### Fresh NixOS Installation
 
 ```bash
-# 1. Clone the repository
+# 1. Boot NixOS live USB
+# 2. Clone repository
 git clone <your-repo-url>
 cd my-nixos
 
-# 2. Complete installation (recommended)
+# 3. Complete installation (recommended)
 ./install.sh full
 
 # OR step-by-step installation:
@@ -72,50 +109,10 @@ cd my-nixos
 
 ```bash
 # For recovery or debugging existing setup:
-./install.sh status    # Check current state
-./install.sh mount     # Mount existing filesystems
+./install.sh status    # Check state
+./install.sh mount     # Mount filesystems
 ./install.sh config    # Regenerate configuration
 ./install.sh nixos    # Reinstall system
-```
-
-## 📁 Entry Points Explained
-
-### Main Orchestrator: install.sh
-
-```bash
-# Primary entry point for all operations
-./install.sh [command]
-
-# Available commands:
-# full    - Complete installation with guidance
-# quick   - Automated installation without prompts
-# disk    - Disk setup and partitioning only
-# config  - Configuration generation only
-# nixos   - NixOS installation only
-# mount   - Mount existing filesystems only
-# status  - Show current system status
-# help    - Show all available options
-```
-
-### Individual Modules
-
-Each module can also be run directly:
-
-```bash
-# Disk operations
-./modules/disk.sh setup    # Full disk setup
-./modules/disk.sh mount     # Mount existing filesystems
-./modules/disk.sh help      # Show disk module help
-
-# Configuration operations
-./modules/config.sh setup    # Generate configuration files
-./modules/config.sh help     # Show config module help
-
-# Installation operations
-./modules/nixos.sh install   # Install with confirmation
-./modules/nixos.sh quick     # Install without confirmation
-./modules/nixos.sh verify     # Verify system requirements
-./modules/nixos.sh help      # Show nixos module help
 ```
 
 ## 🔄 Installation Flow Diagram
@@ -123,36 +120,24 @@ Each module can also be run directly:
 ```
 ┌─────────────────┐
 │   install.sh    │ ← START HERE
-└────────┬-───────┘
+└────────┬──-──-──┘
          │
          ▼
 ┌───────────-──┐
 │ Module Check │
-└──────┬───-───┘
-       │
-       ▼
-┌───────────────────┐
-│ Choose Command:   │
-│ • full            │
-│ • quick           │
-│ • disk            │
-│ • config          │
-│ • nixos           │
-│ • mount           │
-│ • status          │
-└─────────┬─────────┘
-          │
-          ▼
-┌─────────────────────────────────────────────────┐
-│ Execution Path:                                 │
-│                                                 │
-│ full/quick ──► disk ──► config ──► nixos        │
-│ disk         ──► [STOP]                         │
-│ config        ──► [ERROR - need disks]          │
-│ nixos        ──► [ERROR - need config]          │
-│ mount        ──► [STOP]                         │
-│ status       ──► [STOP]                         │
-└─────────────────────────────────────────────────┘
+└───────┬───-──┘
+        │
+        ▼
+┌─────────────────────────────────────────-┐
+│ Choose Command:                          │
+│                                          │
+│ full/quick ──► disk ──► config ──► nixos │
+│ disk         ──► [STOP]                  │
+│ config        ──► [ERROR - need disks]   │
+│ nixos        ──► [ERROR - need config]   │
+│ mount        ──► [STOP]                  │
+│ status       ──► [STOP]                  │
+└─────────────────────────────────────────-┘
 ```
 
 ## 🎯 Common Workflows
@@ -179,6 +164,42 @@ Each module can also be run directly:
 ./modules/nixos.sh install   # Direct installation
 ```
 
+## 🖥️ Hardware Profiles
+
+Your modular installation supports flexible hardware configuration:
+
+### **Hardware Profile Selection**
+When running `./install.sh full` or `./install.sh config`, you'll see:
+```bash
+Hardware profile selection:
+1. Auto-detect (recommended)    # Automatically detects NVIDIA
+2. NVIDIA GPU                 # Forces NVIDIA configuration  
+3. Non-NVIDIA GPU (Intel/AMD)   # Optimized for Intel/AMD
+4. Generic/Minimal               # Basic configuration
+```
+
+### **Multi-Machine Setup**
+```bash
+# Desktop with NVIDIA
+FORCE_NVIDIA=true ./install.sh quick
+
+# Laptop with Intel graphics  
+FORCE_NO_NVIDIA=true ./install.sh quick
+
+# Minimal server setup
+FORCE_GENERIC=true ./install.sh quick
+```
+
+### **Hardware-Specific Templates**
+- `templates/hardware-specific/nvidia.nix` - Complete NVIDIA setup with CUDA
+- `templates/hardware-specific/no-nvidia.nix` - Optimized Intel/AMD configuration
+
+### **Use Cases**
+- **Desktop with RTX 4090**: Choose "NVIDIA GPU" profile
+- **Laptop with Intel iGPU**: Choose "Non-NVIDIA GPU" profile  
+- **Mixed environment**: Use separate configurations per machine
+- **Testing/CI**: Use "Generic/Minimal" profile
+
 ## 📋 Pre-Installation Requirements
 
 ### System Requirements
@@ -194,7 +215,7 @@ Each module can also be run directly:
 - **Timezone** (e.g., `America/Chicago`)
 - **Username** (e.g., `nate`)
 - **User password** (for initial login)
-- **WiFi firmware** (automatically installed if needed)
+- **WiFi firmware** (automatically installed if needed) 
 
 ### Optional Information
 - **NVIDIA GPU** (auto-detected)
@@ -226,7 +247,7 @@ Each module can also be run directly:
 
 ### Personal Desktop Installation
 ```bash
-# Quick desktop setup
+# Quick desktop setup with Cosmic/Hyprland
 ./install.sh quick
 ```
 
@@ -240,7 +261,7 @@ Each module can also be run directly:
 
 ### Development/Testing
 ```bash
-# Iterative development
+# Iterative development and testing
 ./install.sh disk     # Setup disks
 # Modify templates/
 ./install.sh config    # Test configuration
@@ -252,8 +273,8 @@ Each module can also be run directly:
 # Recover existing installation
 ./install.sh status    # Check state
 ./install.sh mount     # Mount filesystems
-./install.sh config    # Regenerate config
-./install.sh nixos     # Reinstall
+./install.sh config    # Regenerate configuration
+./install.sh nixos     # Reinstall system
 ```
 
 ## 🔍 Troubleshooting
@@ -283,6 +304,9 @@ Each module can also be run directly:
 
 # Check mounts
 mount | grep /mnt
+
+# Inspect configuration
+ls -la /mnt/etc/nixos/
 ```
 
 ## 🤝 Getting Started
@@ -294,15 +318,12 @@ mount | grep /mnt
 git clone <your-repo-url>
 cd my-nixos
 
-```bash
 # 3. Run installation
 ./install.sh full
 
 # 4. Follow prompts for:
 #    - Select target disk
 #    - Set LUKS password
-#    - **Hardware profile** (Auto/NVIDIA/Non-NVIDIA/Generic)
-#    - **WiFi firmware** (automatically installed if needed)
 #    - Configure hostname/timezone/username
 #    - Confirm installation
 
@@ -319,45 +340,9 @@ cd my-nixos
 ./modules/nixos.sh help
 ```
 
-## 🖥️ Hardware Profiles
-
-Your modular installation supports flexible hardware configuration:
-
-### **Hardware Profile Selection**
-When running `./install.sh full` or `./install.sh config`, you'll see:
-```bash
-Hardware profile selection:
-1. Auto-detect (recommended)    # Automatically detects NVIDIA
-2. NVIDIA GPU                   # Forces NVIDIA configuration
-3. Non-NVIDIA GPU (Intel/AMD)   # Optimized for Intel/AMD
-4. Generic/Minimal               # Basic configuration
-```
-
-### **Multi-Machine Setup**
-```bash
-# Desktop with NVIDIA
-FORCE_NVIDIA=true ./install.sh quick
-
-# Laptop with Intel graphics  
-FORCE_NO_NVIDIA=true ./install.sh quick
-
-# Minimal server setup
-FORCE_GENERIC=true ./install.sh quick
-```
-
-### **Hardware-Specific Templates**
-- `templates/hardware-specific/nvidia.nix` - Complete NVIDIA setup with CUDA
-- `templates/hardware-specific/no-nvidia.nix` - Optimized Intel/AMD configuration
-
-### **Use Cases**
-- **Desktop with RTX 4090**: Choose "NVIDIA GPU" profile
-- **Laptop with Intel iGPU**: Choose "Non-NVIDIA GPU" profile  
-- **Mixed environment**: Use separate configurations per machine
-- **Testing/CI**: Use "Generic/Minimal" profile
-
 ---
 
-**🎉 Ready to install NixOS?**
+**🎉 Ready to install NixOS?** 
 
 ```bash
 # Start your modular NixOS installation
@@ -366,4 +351,4 @@ cd my-nixos
 ./install.sh full
 ```
 
-For detailed guides, see the `docs/` directory or use `./install.sh help`.
+For detailed guides, see `docs/` directory or use `./install.sh help`.

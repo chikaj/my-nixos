@@ -88,17 +88,47 @@ mount_filesystems() {
 
     # Create mount points
     sudo mkdir -p /mnt/{etc,nix,home,persist,boot}
-    sudo mkdir -p /mnt/etc/nixos
 
-    # Mount Btrfs subvolumes
-    for subvol in root nix home persist; do
-        target="/mnt"
-        [ "$subvol" != "root" ] && target="/mnt/$subvol"
-        sudo mount -o subvol="$subvol",compress=zstd,noatime /dev/mapper/cryptroot "$target"
+    # Mount Btrfs subvolumes - mount root first separately
+    echo "DEBUG: Mounting root subvolume to /mnt"
+    if sudo mount -o subvol=root,compress=zstd,noatime /dev/mapper/cryptroot /mnt; then
+        echo "DEBUG: Successfully mounted root subvolume"
+    else
+        echo "DEBUG: Failed to mount root subvolume, trying fallback"
+        if sudo mount -o compress=zstd,noatime /dev/mapper/cryptroot /mnt; then
+            echo "DEBUG: Successfully mounted root with fallback method"
+        else
+            echo "DEBUG: Root mount failed completely"
+            exit 1
+        fi
+    fi
+
+    # Mount other subvolumes
+    for subvol in nix home persist; do
+        target="/mnt/$subvol"
+        echo "DEBUG: Mounting subvolume '$subvol' to '$target' from /dev/mapper/cryptroot"
+        if sudo mount -o subvol="$subvol",compress=zstd,noatime /dev/mapper/cryptroot "$target"; then
+            echo "DEBUG: Successfully mounted $subvol"
+        else
+            echo "DEBUG: Failed to mount $subvol"
+        fi
     done
 
     # Mount EFI partition
-    sudo mount -t vfat "$EFI" /mnt/boot
+    echo "DEBUG: Mounting EFI partition $EFI to /mnt/boot"
+    if sudo mount -t vfat "$EFI" /mnt/boot; then
+        echo "DEBUG: Successfully mounted EFI partition"
+    else
+        echo "DEBUG: Failed to mount EFI partition"
+    fi
+
+    # Verify mount points and subvolume status
+    echo "DEBUG: Verifying Btrfs subvolume status"
+    if sudo btrfs subvolume list /mnt >/dev/null 2>&1; then
+        echo "DEBUG: Btrfs subvolumes accessible"
+    else
+        echo "DEBUG: Btrfs subvolumes not properly accessible"
+    fi
 
     log_success "Filesystems mounted successfully"
 }

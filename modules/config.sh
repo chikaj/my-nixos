@@ -55,12 +55,22 @@ process_config_template() {
         exit 1
     fi
 
-    # Substitute variables into config template
+    # Substitute variables into config template with debug output
+    echo "DEBUG: Substituting variables into config template:"
+    echo "DEBUG: HOSTNAME='$HOSTNAME', TIMEZONE='$TIMEZONE', USERNAME='$USERNAME'"
+    echo "DEBUG: Using template: $base_template"
+    echo "DEBUG: Output file: $output_path"
+
     sed -e "s|HOSTNAME|$HOSTNAME|g" \
         -e "s|TIMEZONE|$TIMEZONE|g" \
         -e "s|USERNAME|$USERNAME|g" \
         -e "s|PASSWORD|$PASSWORD|g" \
         "$base_template" > "$output_path"
+
+    echo "DEBUG: Config template processing complete"
+    echo "DEBUG: Verifying substitution..."
+    echo "DEBUG: First 5 lines of output:"
+    head -5 "$output_path"
 
     # Append hardware-specific configuration if needed
     if [ "${FORCE_NVIDIA:-false}" = true ]; then
@@ -84,10 +94,19 @@ process_flake_template() {
 
     log_info "Processing flake template..."
 
-    # Substitute variables into flake template
+    # Substitute variables into flake template with debug output
+    echo "DEBUG: Substituting variables into flake template:"
+    echo "DEBUG: HOSTNAME='$HOSTNAME', USERNAME='$USERNAME'"
+    echo "DEBUG: Using template: $template_path"
+    echo "DEBUG: Output file: $output_path"
+
     sed -e "s|HOSTNAME|$HOSTNAME|g" \
         -e "s|USERNAME|$USERNAME|g" \
         "$template_path" > "$output_path"
+
+    echo "DEBUG: Flake template processing complete"
+    echo "DEBUG: First 5 lines of output:"
+    head -5 "$output_path"
 
     log_success "Flake configuration created: $output_path"
 }

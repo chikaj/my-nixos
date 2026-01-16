@@ -99,29 +99,26 @@
     };
   };
 
-  {
-    programs.zed-editor = {
-      enable = true;
-      userSettings = {
-        buffer_font_family = "CaskaydiaCove Nerd Font";
-        buffer_font_size = 15;
-        # Gaia AI integration!
-        language_models = {
-          openai = {
-            version = "1";
-            api_url = "https://rustcoder.gaia.domains/v1";
-          };
+  programs.zed-editor = {
+    enable = true;
+    userSettings = {
+      buffer_font_family = "CaskaydiaCove Nerd Font";
+      buffer_font_size = 15;
+      # Gaia AI integration!
+      language_models = {
+        openai = {
+          version = "1";
+          api_url = "https://rustcoder.gaia.domains/v1";
         };
-        assistant = {
-          provider = "openai";
-          default_model = {
-            provider = "openai";
-            model = "rustcoder";
-          };
-        };
-        # Add other settings as needed, like theme, keymaps, etc.
       };
+      assistant = {
+        provider = "openai";
+        default_model = {
+          provider = "openai";
+          model = "rustcoder";
+        };
+      };
+      # Add other settings as needed, like theme, keymaps, etc.
     };
-  }
-
+  };
 }

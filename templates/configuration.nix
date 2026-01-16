@@ -32,6 +32,7 @@ in
   # Hyprland and Cosmic
   programs.hyprland.enable = true;
   services.desktopManager.cosmic.enable = true;
+  services.displayManager.cosmic-greeter.enable = false;
 
   # Tuigreet + greetd setup for session selection
   services.greetd = {
@@ -45,18 +46,17 @@ in
   };
 
   hardware.opengl.enable = true;
-  hardware.nvidia.enable = true;
-  services.xserver.videoDrivers = [ "nvidia" ];
+
+  # hardware.nvidia = {
+  #   modesetting.enable = true;
+  #   powerManagement.enable = false;
+  #   nvidiaSettings = true;
+  #   package = config.boot.kernelPackages.nvidiaPackages.stable;
+  # };
+  # services.xserver.videoDrivers = [ "nvidia" ];
+
   xdg.portal.enable = true;
   xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-hyprland ];
-
-  # # Activation script to deploy custom session files for tuigreet
-  #   system.activationScripts.customSessions = ''
-  #     if [ -d ${customSessionsDir} ]; then
-  #       echo "Copying custom session files to ${systemSessionsDir}..."
-  #       cp -f ${customSessionsDir}/*.desktop ${systemSessionsDir}/
-  #     fi
-  #   '';
 
   # Memory optimization: ZRAM and swappiness
   services.zramSwap.enable = true;
@@ -83,7 +83,7 @@ in
   swapDevices = [
     {
       device = "/swap/swapfile";  # will be created automatically by NixOS
-      size = 256 * 1024 * 1024;    # GiB in KiB. Set to be equal to or greater than system RAM!
+      size = 16384;    # GiB in KiB. Set to be equal to or greater than system RAM!
     }
   ];
 

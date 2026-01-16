@@ -227,19 +227,6 @@ select_hardware_profile() {
     done
 }
 
-# Copy session files
-copy_session_files() {
-    local sessions_dir="${SCRIPT_DIR}/../templates/wayland-sessions"
-    local target_dir="/mnt/etc/nixos/wayland-sessions"
-
-    if [ -d "$sessions_dir" ]; then
-        log_info "Copying wayland session files..."
-        mkdir -p "$target_dir"
-        cp "$sessions_dir"/*.desktop "$target_dir/" 2>/dev/null || true
-        log_success "Session files copied"
-    fi
-}
-
 # Copy configuration files to mount point
 copy_configs_to_system() {
     log_info "Copying configuration files to system..."
@@ -250,9 +237,6 @@ copy_configs_to_system() {
     # Copy main config files
     sudo cp ./configuration.nix /mnt/etc/nixos/
     sudo cp ./flake.nix /mnt/etc/nixos/
-
-    # Copy session files
-    copy_session_files
 
     log_success "Configuration files copied to /mnt/etc/nixos/"
 }

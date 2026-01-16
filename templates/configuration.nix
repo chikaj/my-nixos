@@ -59,7 +59,14 @@ in
   xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-hyprland ];
 
   # Memory optimization: ZRAM and swappiness
-  services.zramSwap.enable = true;
+
+  zramSwap = {
+    enable = true;
+    # optional tuning:
+    # algorithm = "lz4";         # or "zstd"
+    # memoryPercent = 30;        # max % of RAM usable by zram
+    # priority = 100;            # swap priority so zram is preferred
+  };
   boot.kernel.sysctl."vm.swappiness" = 10;
 
   # Network configuration for live ISO compatibility

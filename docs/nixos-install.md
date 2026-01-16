@@ -503,9 +503,6 @@ export NIX_ACCEPTED_KEYS="cache.nixos.org-1"
 
 Post-installation optimization:
 ```bash
-# Enable ZRAM for better memory usage
-echo "services.zramSwap.enable = true;" >> /etc/nixos/configuration.nix
-
 # Optimize Btrfs filesystem
 echo "fileSystems.\"/\".options = [ \"compress=zstd\" ];" >> /etc/nixos/configuration.nix
 

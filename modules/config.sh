@@ -302,11 +302,10 @@ show_verification_steps() {
 # Generate hardware configuration
 generate_hardware_config() {
     log_info "Generating hardware configuration..."
-    nixos-generate-config --root /mnt
+    # nixos-generate-config --root /mnt
+    sudo nixos-enter --root /mnt -c 'nixos-generate-config'
     log_success "Hardware configuration generated"
 }
-
-
 
 # Main configuration function
 setup_config() {

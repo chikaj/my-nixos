@@ -95,7 +95,7 @@ process_flake_template() {
 # Process home-manager template
 process_home_template() {
     local base_template="${SCRIPT_DIR}/../templates/home.nix"
-    local home_file="/home/${USERNAME}/.config/home-manager/home.nix"
+    local home_file="/mnt/home/${USERNAME}/.config/home-manager/home.nix"
 
     log_info "Processing home-manager template..."
 
@@ -105,9 +105,9 @@ process_home_template() {
     fi
 
     # Create directory and substitute variables
-    mkdir -p "$(dirname "$home_file")"
-    sed "s|USERNAME|$USERNAME|g" "$base_template" > "$home_file"
-    chown "${USERNAME}:${USERNAME}" "$home_file"
+    sudo mkdir -p "$(dirname "$home_file")"
+    sed "s|USERNAME|$USERNAME|g" "$base_template" | sudo tee "$home_file" >/dev/null
+    # chown "${USERNAME}:${USERNAME}" "$home_file"
 
     log_success "Home configuration created: $home_file"
 }

@@ -279,7 +279,10 @@ show_verification_steps() {
     echo "  - No placeholders:      grep HOSTNAME /mnt/etc/nixos/configuration.nix (should return nothing)"
     echo
     echo "When verified, run:"
-    echo "  nixos-install --flake /mnt/etc/nixos#${HOSTNAME}"
+    # Extract hostname from configuration file
+    local extracted_hostname
+    extracted_hostname=$(grep "networking.hostName" /mnt/etc/nixos/configuration.nix | cut -d'"' -f2)
+    echo "  nixos-install --flake /mnt/etc/nixos#${extracted_hostname}"
     echo
 }
 

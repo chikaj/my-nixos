@@ -5,6 +5,23 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/common.sh"
 
+
+refresh_flake_lock() {
+  # Ensure flake.lock matches THIS environment (the live ISO’s Nix)
+  local flake_dir="/mnt/etc/nixos"
+  if [ -f "$flake_dir/flake.nix" ]; then
+    echo "[INFO] Refreshing flake.lock in $flake_dir for this environment..."
+    # Remove possibly stale lock created elsewhere
+    sudo rm -f "$flake_dir/flake.lock"
+    # Recreate it with the current Nix on the installer
+    sudo nix --extra-experimental-features 'nix-command flakes' \
+      flake update --recreate-lock-file --flake "$flake_dir"
+    echo "[SUCCESS] flake.lock refreshed."
+  else
+    echo "[WARNING] No flake.nix in $flake_dir; skipping flake lock refresh."
+  fi
+}
+
 # Check system requirements
 check_requirements() {
     log_info "Checking system requirements..."
@@ -57,6 +74,7 @@ install_nixos() {
 
     local hostname
     hostname=$(grep "networking.hostName" /mnt/etc/nixos/configuration.nix | cut -d'"' -f2)
+    refresh_flake_lock
 
     # Run the installation
     if sudo nixos-install --flake "/mnt/etc/nixos#${hostname}"; then

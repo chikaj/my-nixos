@@ -155,13 +155,26 @@ mount_filesystems() {
   fi
 
   # Verify /mnt is Btrfs and confirm subvol
-  if [ "$(findmnt -no FSTYPE "$TARGET_MNT" 2>/dev/null)" != "btrfs" ]; then
-    log_error "$TARGET_MNT is not a Btrfs mount; aborting."
-    exit 1
-  fi
-  if ! sudo btrfs subvolume show "$TARGET_MNT" | grep -qE '^Name:\s+root$'; then
-    log_warning "Mounted subvolume at $TARGET_MNT is not named 'root' (this may be OK if your layout uses a different name/path)."
-  fi
+
+
+log_info "Verifying filesystem at TARGET_MNT='$TARGET_MNT'"
+``
+
+if ! sudo btrfs subvolume show "$TARGET_MNT" | grep -qE '^Name:\s+root$'; then
+  log_warning "Mounted subvolume at $TARGET_MNT is not named 'root'."
+fi
+
+# Ensure TARGET_MNT has a btrfs mount
+if ! findmnt -rn -t btrfs -T "$TARGET_MNT" >/dev/null 2>&1; then
+  log_error "$TARGET_MNT is not a Btrfs mount; aborting."
+  # Help the user see what's there
+  log_info "findmnt says:"
+  findmnt -no SOURCE,FSTYPE,OPTIONS "$TARGET_MNT" || true
+  exit 1
+fi
+if ! sudo btrfs subvolume show "$TARGET_MNT" | grep -qE '^Name:\s+root$'; then
+log_warning "Mounted subvolume at $TARGET_MNT is not named 'root' (this may be OK if your layout uses a different name/path)."
+fi
 
   # Create mount points *after* root is mounted (avoid shadowing)
   sudo mkdir -p "$TARGET_MNT/boot"

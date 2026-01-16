@@ -16,7 +16,7 @@ in
   time.timeZone = timezone;
 
   # User definition
-  users.users.${username} = {
+  users.users."${username}" = {
     isNormalUser = true;
     description = "Desktop Owner";
     extraGroups = [ "wheel" "networkmanager" ];
@@ -26,13 +26,7 @@ in
 
   # Basic packages and DE/WM
   environment.systemPackages = with pkgs; [
-    git wget curl htop vim ghostty cosmic-desktop cosmic-comp hyprland
-
-    # Network utilities for live ISO and system management
-    iwtools          # iwconfig, iwpriv (legacy wireless tools)
-    wireless-regdb  # Wireless regulatory database
-    networkmanager   # Network management
-    wpa_supplicant  # WPA/WPA2 support
+    git wget curl htop vim ghostty hyprland
   ];
 
   # Hyprland and Cosmic

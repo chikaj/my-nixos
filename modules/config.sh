@@ -230,7 +230,7 @@ select_hardware_profile() {
 # Copy session files
 copy_session_files() {
     local sessions_dir="${SCRIPT_DIR}/../templates/wayland-sessions"
-    local target_dir="/etc/nixos/wayland-sessions"
+    local target_dir="/mnt/etc/nixos/wayland-sessions"
 
     if [ -d "$sessions_dir" ]; then
         log_info "Copying wayland session files..."
@@ -306,55 +306,7 @@ generate_hardware_config() {
     log_success "Hardware configuration generated"
 }
 
-# Check and install WiFi firmware for live ISO
-setup_wifi_firmware() {
-    log_info "Checking WiFi connectivity..."
 
-    # Check if we have network connectivity
-    if ping -c 1 google.com >/dev/null 2>&1; then
-        log_success "Network connectivity confirmed"
-        return 0
-    fi
-
-    log_warning "No network connectivity detected"
-    log_info "This is common with WiFi on minimal NixOS live ISO"
-
-    # Check for WiFi interfaces
-    if iwconfig 2>/dev/null | grep -q "wlan\|wlp" || \
-       ip link 2>/dev/null | grep -q "wlan\|wlp"; then
-        log_info "WiFi interface detected, installing firmware..."
-
-        # Install common WiFi firmware packages
-        sudo nix-env -iA nixos.wireless-regdb \
-                          nixos.linux-firmware \
-                          -f
-        log_success "WiFi firmware installed"
-
-        # Try to restart network services
-        sudo systemctl restart NetworkManager 2>/dev/null || true
-
-        # Wait for services to come up
-        sleep 3
-
-        # Test connectivity again
-        if ping -c 1 google.com >/dev/null 2>&1; then
-            log_success "WiFi connectivity established!"
-        else
-            log_warning "Still no connectivity. You may need:"
-            log_warning "1. Reboot after firmware installation"
-            log_warning "2. Connect WiFi manually: nmtui"
-            log_warning "3. Use ethernet if available"
-        fi
-    else
-        log_info "No WiFi interface detected, checking ethernet..."
-        if ping -c 1 google.com >/dev/null 2>&1; then
-            log_success "Network connectivity via ethernet confirmed"
-        else
-            log_warning "No network connectivity detected"
-            log_info "Please ensure internet connection is available before proceeding"
-        fi
-    fi
-}
 
 # Main configuration function
 setup_config() {
@@ -363,8 +315,7 @@ setup_config() {
     # Check if partitions are mounted
     check_partitions_mounted || exit 1
 
-    # Setup WiFi firmware for live ISO if needed
-    setup_wifi_firmware
+
 
     prompt_user_info
     generate_hardware_config

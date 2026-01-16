@@ -50,8 +50,8 @@ process_config_template() {
         log_info "Using non-NVIDIA configuration"
     fi
 
-    if [ ! -f "$template_path" ]; then
-        log_error "Configuration template not found at $template_path"
+    if [ ! -f "$base_template" ]; then
+        log_error "Configuration template not found at $base_template"
         exit 1
     fi
 
@@ -86,8 +86,8 @@ process_flake_template() {
 
     # Substitute variables into flake template
     sed -e "s|HOSTNAME|$HOSTNAME|g" \
-        -e "s|USERNAME|$USERNAME|g" \
-        "$template_path" > "$output_path"
+    -e "s|USERNAME|$USERNAME|g" \
+    "$base_template" > "$output_path"
 
     log_success "Flake configuration created: $output_path"
 }
@@ -99,8 +99,8 @@ process_home_template() {
 
     log_info "Processing home-manager template..."
 
-    if [ ! -f "$base_template" ]; then
-        log_error "Home template not found at $base_template"
+    if [ ! -f "$template_path" ]; then
+        log_error "Home template not found at $template_path"
         exit 1
     fi
 

@@ -5,39 +5,6 @@ set -a
 source .env
 set +a
 
-# Disko and partitioning step:
-echo "Enter your target device (e.g., /dev/nvme2n1):"
-read DEVICENAME
-if [ -z "$DEVICENAME" ]; then
-    echo "Error: DEVICENAME is not set." >&2
-    exit 1
-fi
-
-echo
-read -s -p "Enter your desired LUKS password: " LUKSPASS
-
-echo
-read -s -p "Confirm desired LUKS password: " LUKSPASS2
-echo
-if [ "$LUKSPASS" != "$LUKSPASS2" ]; then
-  echo "LUKS passwords do not match!" >&2
-  exit 1
-fi
-
-# Write password to a temporary keyfile
-echo -n "$LUKSPASS" > /tmp/secret.key
-
-# Copy and modify template disko-config, replacing device name
-sed "s|/dev/mydisk|$DEVICENAME|g" ./disko/disko-config-template.nix > ./disko-config.nix
-
-# Trigger disko with supplied config and password
-sudo nix --extra-experimental-features 'nix-command flakes' run github:nix-community/disko -- --mode disko ./disko-config.nix
-
-# Remove temporary keyfile after partitioning for security
-rm -f /tmp/secret.key
-
-echo "Disk partitioning complete. Proceeding with NixOS install steps."
-
 # === MOUNT PARTITIONS ===
 # Detect LUKS partition dynamically
 CRYPTROOT=$(lsblk -o NAME,TYPE,FSTYPE -ln "$DEVICENAME" | awk '$3=="crypto_LUKS"{print "/dev/" $1}' | head -n1)
@@ -102,9 +69,9 @@ if [ -z "$USERNAME" ]; then
     exit 1
 fi
 
-read -s -p "Enter password: " PASSWORD
+read -s -p "Enter your desired NixOS password: " PASSWORD
 echo
-read -s -p "Confirm password: " PASSWORD2
+read -s -p "Confirm desired NixOS password: " PASSWORD2
 echo
 if [ "$PASSWORD" != "$PASSWORD2" ]; then
   echo "User passwords do not match!" >&2
@@ -185,4 +152,4 @@ echo "  nixos-install --flake /mnt/etc/nixos#$HOSTNAME"
 echo "to complete installation. Then reboot and login as $USERNAME."
 
 # Install with flakes:
-# nixos-install --flake /mnt/etc/nixos#${HOSTNAME}
+nixos-install --flake /mnt/etc/nixos#${HOSTNAME}

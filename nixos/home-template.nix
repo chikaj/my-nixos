@@ -12,13 +12,36 @@
   home.stateVersion = "25.05";
 
   # Enable Fontconfig for graphical fonts support
-   fonts.fontconfig.enable = true;
+  fonts.fontconfig.enable = true;
 
    # Install user packages (Ghostty, starship, Nushell, and nerd-fonts.
     home.packages = with pkgs; [
+        cosmic-applets
+        cosmic-applibrary
+        cosmic-bg
+        cosmic-edit
+        cosmic-files
+        cosmic-icons
+        cosmic-idle
+        cosmic-launcher
+        cosmic-notifications
+        cosmic-osd
+        cosmic-panel
+        cosmic-player
+        cosmic-randr
+        cosmic-screenshot
+        cosmic-session
+        cosmic-settings
+        cosmic-settings-daemon
+        cosmic-term
+        cosmic-theme-editor
+        cosmic-workspaces-epoch
+        xdg-desktop-portal-cosmic
+        pop-launcher
+        zsh
+      nushell
       ghostty
       helix
-      nushell
       starship
       superfile
       zed-editor

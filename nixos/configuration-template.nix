@@ -18,20 +18,25 @@ in
   # User definition
   users.users.${username} = {
     isNormalUser = true;
-    description = "Desktop Owner";
+    description = "Desktop Wizard";
     extraGroups = [ "wheel" "networkmanager" ];
-    shell = pkgs.zsh;
+    shell = pkgs.nushell;
     initialPassword = password;
   };
 
   # Basic packages and DE/WM
   environment.systemPackages = with pkgs; [
-    git wget curl htop vim ghostty cosmic-desktop cosmic-comp hyprland
+    git wget curl htop vim zsh nushell hyprland
   ];
 
-  # Hyprland and Cosmic
+  # Hyprland
   programs.hyprland.enable = true;
+  # Enable the Cosmic login manager
+  # services.displayManager.cosmic-greeter.enable = true;
+  # Enable the COSMIC DE itself
   services.desktopManager.cosmic.enable = true;
+  # Enable XWayland support in COSMIC
+  services.desktopManager.cosmic.xwayland.enable = true;
 
   # Tuigreet + greetd setup for session selection
   services.greetd = {

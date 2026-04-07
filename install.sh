@@ -129,6 +129,7 @@ HOME_TEMPLATE=./nixos/home-template.nix
 
 CONFIG_OUTPUT=./configuration.nix
 FLAKE_OUTPUT=./flake.nix
+HOME_OUTPUT=./home.nix
 
 # Substitute variables into config template
 sed -e "s|HOSTNAME|$HOSTNAME|g" \
@@ -144,13 +145,13 @@ sed -e "s|HOSTNAME|$HOSTNAME|g" \
 # Substitute and generate home-manager config
 sed -e "s|USERNAME|$USERNAME|g" \
     -e "s|PASSWORD|$PASSWORD|g" \
-    "$HOME_TEMPLATE" > ./home.nix
+    "$HOME_TEMPLATE" > "$HOME_OUTPUT"
 
 # (Assume disk partitioning is done; mount root at /mnt)
 # Copy configs in place
 cp "$CONFIG_OUTPUT" /mnt/etc/nixos/configuration.nix
 cp "$FLAKE_OUTPUT" /mnt/etc/nixos/flake.nix
-cp ./home.nix /mnt/etc/nixos/home.nix
+cp "$HOME_OUTPUT" /mnt/etc/nixos/home.nix
 
 echo "All configs are now in /mnt/etc/nixos/."
 echo "Confirm partitions with: lsblk."
@@ -168,4 +169,4 @@ echo "  nixos-install --flake /mnt/etc/nixos#$HOSTNAME"
 echo "to complete installation. Then reboot and login as $USERNAME."
 
 # Install with flakes:
-# nixos-install --flake /mnt/etc/nixos#${HOSTNAME}
+nixos-install --flake /mnt/etc/nixos#${HOSTNAME}

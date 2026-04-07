@@ -1,26 +1,39 @@
 {
-  description = "NixOS system with tuigreet, Hyprland, Cosmic, automation and home-manager";
+  description = "NixOS system with Niri, Noctalia, and home-manager";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     flake-utils.url = "github:numtide/flake-utils";
+    niri-flake.url = "github:sodiboo/niri-flake";
+    niri-flake.inputs.nixpkgs.follows = "nixpkgs";
+    noctalia = {
+      url = "github:noctalia-dev/noctalia-shell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
-  outputs = { self, nixpkgs, home-manager, flake-utils, ... }:
+  nixConfig = {
+    extra-substituters = [
+      "https://noctalia.cachix.org"
+      "https://niri.cachix.org"
+    ];
+    extra-trusted-public-keys = [
+      "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
+      "niri.cachix.org-1:EjH3R0Yj5t5pJbM1rWvQ3L8xK9yC4h7fA6eB2sD5gU0="
+    ];
+  };
+  outputs = { self, nixpkgs, home-manager, flake-utils, niri-flake, noctalia, ... }:
     flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = import nixpkgs { system = system; };
-        hostname = "HOSTNAME";
-        username = "USERNAME";
-      in
       {
-        nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
+        nixosConfigurations.HOSTNAME = nixpkgs.lib.nixosSystem {
           system = system;
+          specialArgs = { inherit inputs; };
           modules = [
             ./configuration.nix
+            niri-flake.nixosModules.niri
             home-manager.nixosModules.home-manager
             {
-              home-manager.users.${username} = import ./home.nix;
+              home-manager.users.USERNAME = ./home.nix;
             }
           ];
         };

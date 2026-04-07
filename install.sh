@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
-set -a
-source .env
-set +a
 
 # Disko and partitioning step:
 echo "Enter your target device (e.g., /dev/nvme2n1):"
@@ -28,7 +25,7 @@ fi
 echo -n "$LUKSPASS" > /tmp/secret.key
 
 # Copy and modify template disko-config, replacing device name
-sed "s|/dev/mydisk|$DEVICENAME|g" ./disko/disko-config-template.nix > ./disko-config.nix
+sed "s|/dev/mydisk|$DEVICENAME|g" ./disko-config-template.nix > ./disko-config.nix
 
 # Trigger disko with supplied config and password
 sudo nix --extra-experimental-features 'nix-command flakes' run github:nix-community/disko -- --mode disko ./disko-config.nix
@@ -114,22 +111,17 @@ fi
 # Generate hardware config
 nixos-generate-config --root /mnt
 
-# For NVIDIA configuration
-NVIDIA_BLOCK='
-  hardware.nvidia = {
-    modesetting.enable = true;
-    powerManagement.enable = false;
-    nvidiaSettings = true;
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
-    cudaSupport = true;
-    # For specific requirements, add deviceSections or busId options here
-  };
-  services.xserver.videoDrivers = [ "nvidia" ];
-'
+# Copy modules and home directories to /mnt/etc/nixos
+# Substitute variables in the files
+cp -r ./nixos/modules /mnt/etc/nixos/
+cp -r ./nixos/home /mnt/etc/nixos/
 
-if grep -qi 'nvidia' /mnt/etc/nixos/hardware-configuration.nix || [ "$(lspci | grep -i 'nvidia' | wc -l)" -gt 0 ]; then
-    sed -i "/^}/i ${NVIDIA_BLOCK}" /mnt/etc/nixos/configuration.nix
-fi
+# Substitute variables in the copied directories
+find /mnt/etc/nixos/modules /mnt/etc/nixos/home -type f -name "*.nix" -exec sed -i \
+    -e "s|USERNAME|$USERNAME|g" \
+    -e "s|PASSWORD|$PASSWORD|g" \
+    -e "s|TIMEZONE|$TIMEZONE|g" \
+    {} \;
 
 CONFIG_TEMPLATE=./nixos/configuration-template.nix
 FLAKE_TEMPLATE=./nixos/flake-template.nix
@@ -137,7 +129,6 @@ HOME_TEMPLATE=./nixos/home-template.nix
 
 CONFIG_OUTPUT=./configuration.nix
 FLAKE_OUTPUT=./flake.nix
-HOME_FILE="/home/${USERNAME}/.config/home-manager/home.nix"
 
 # Substitute variables into config template
 sed -e "s|HOSTNAME|$HOSTNAME|g" \
@@ -150,34 +141,26 @@ sed -e "s|HOSTNAME|$HOSTNAME|g" \
     -e "s|USERNAME|$USERNAME|g" \
     "$FLAKE_TEMPLATE" > "$FLAKE_OUTPUT"
 
-# Substitute and create user's home-manager config in their home directory
-mkdir -p "$(dirname "${HOME_FILE}")"
-sed "s|USERNAME|$USERNAME|g" "$HOME_TEMPLATE" > "$HOME_FILE"
-chown "${USERNAME}:${USERNAME}" "$HOME_FILE"
-
-# Clone your flake repo, if needed:
-# git clone <your-config-repo> /mnt/etc/nixos
+# Substitute and generate home-manager config
+sed -e "s|USERNAME|$USERNAME|g" \
+    -e "s|PASSWORD|$PASSWORD|g" \
+    "$HOME_TEMPLATE" > ./home.nix
 
 # (Assume disk partitioning is done; mount root at /mnt)
 # Copy configs in place
 cp "$CONFIG_OUTPUT" /mnt/etc/nixos/configuration.nix
 cp "$FLAKE_OUTPUT" /mnt/etc/nixos/flake.nix
-
-# Optionally copy session files:
-# mkdir -p /mnt/etc/nixos/wayland-sessions
-# cp ./wayland-sessions/*.desktop /mnt/etc/nixos/wayland-sessions/
+cp ./home.nix /mnt/etc/nixos/home.nix
 
 echo "All configs are now in /mnt/etc/nixos/."
 echo "Confirm partitions with: lsblk."
 echo "Verify that /mnt/etc/nixos/hardware-configuration.nix exists."
 echo "Verify that configuration.nix and flake.nix are templated correctly"
 echo "Running the following should not return anything."
-echo "  grep HOSTNAME /mnt/etc/nixos/configuration.nix"
-echo "  grep TIMEZONE /mnt/etc/nixos/configuration.nix"
-echo "  grep USERNAME /mnt/etc/nixos/configuration.nix"
-echo "  grep PASSWORD /mnt/etc/nixos/configuration.nix"
 echo "  grep HOSTNAME /mnt/etc/nixos/flake.nix"
-echo "  grep USERNAME /mnt/etc/nixos/flake.nix"
+echo "  grep USERNAME /mnt/etc/nixos/modules/01-user.nix"
+echo "  grep PASSWORD /mnt/etc/nixos/modules/01-user.nix"
+echo "  grep TIMEZONE /mnt/etc/nixos/modules/00-default.nix"
 echo "Confirm mount points with: mount | grep /mnt"
 echo "---"
 echo "All configs are now properly in /mnt/etc/nixos/. Run:"

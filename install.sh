@@ -101,6 +101,7 @@ fi
 read -p "Enter desired username: " USERNAME
 USERNAME=$(echo "$USERNAME" | tr -d '\n')
 echo "DEBUG: After read USERNAME='$USERNAME'"
+echo "DEBUG: About to prompt for password"
 if [ -z "$USERNAME" ]; then
     echo "Error: USERNAME is not set." >&2
     exit 1
@@ -115,8 +116,14 @@ if [ "$PASSWORD" != "$PASSWORD2" ]; then
   exit 1
 fi
 
+echo "DEBUG: Before nixos-generate-config, PASSWORD set"
+echo "DEBUG: Running nixos-generate-config --root /mnt"
+
 # Generate hardware config
 nixos-generate-config --root /mnt
+
+echo "DEBUG: After nixos-generate-config, checking /mnt/etc/nixos:"
+ls -la /mnt/etc/nixos/ 2>&1 || echo "Directory does not exist"
 
 # Copy modules and home directories to /mnt/etc/nixos
 # Substitute variables in the files

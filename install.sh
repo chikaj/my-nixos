@@ -5,6 +5,7 @@ set -euo pipefail
 # Disko and partitioning step:
 echo "Enter your target device (e.g., /dev/nvme2n1):"
 read DEVICENAME
+DEVICENAME=$(echo "$DEVICENAME" | tr -d '\n')
 if [ -z "$DEVICENAME" ]; then
     echo "Error: DEVICENAME is not set." >&2
     exit 1
@@ -82,18 +83,21 @@ sudo mount -t vfat "$EFI" /mnt/boot
 
 # Query user information
 read -p "Enter desired hostname: " HOSTNAME
+HOSTNAME=$(echo "$HOSTNAME" | tr -d '\n')
 if [ -z "$HOSTNAME" ]; then
     echo "Error: HOSTNAME is not set." >&2
     exit 1
 fi
 # timedatectl list-timezones
 read -p "Enter desired time zone (e.g., America/Chicago): " TIMEZONE
+TIMEZONE=$(echo "$TIMEZONE" | tr -d '\n')
 if [ -z "$TIMEZONE" ]; then
     echo "Error: TIMEZONE is not set." >&2
     exit 1
 fi
 
 read -p "Enter desired username: " USERNAME
+USERNAME=$(echo "$USERNAME" | tr -d '\n')
 if [ -z "$USERNAME" ]; then
     echo "Error: USERNAME is not set." >&2
     exit 1

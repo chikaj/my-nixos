@@ -161,14 +161,12 @@ sed -e "s|HOSTNAME|$HOSTNAME|g" \
 cat ./configuration.nix > /mnt/debug-config.txt
 echo "DEBUG: configuration.nix written to /mnt/debug-config.txt"
 
-echo "DEBUG: Running sed on flake-template.nix"
-sed -e "s|HOSTNAME|$HOSTNAME|g" \
-    -e "s|USERNAME|$USERNAME|g" \
-    "$FLAKE_TEMPLATE" > "$FLAKE_OUTPUT"
-
 # Write flake to file for inspection
 cat ./flake.nix > /mnt/debug-flake.txt
 echo "DEBUG: flake.nix written to /mnt/debug-flake.txt"
+
+echo "DEBUG: Checking files exist in /mnt/etc/nixos:"
+ls -la /mnt/etc/nixos/
 
 # Substitute and generate home-manager config
 sed -e "s|USERNAME|$USERNAME|g" \

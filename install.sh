@@ -162,35 +162,14 @@ sed -e "s|HOSTNAME|$HOSTNAME|g" \
     "$CONFIG_TEMPLATE" > "$CONFIG_OUTPUT"
 
 # Write configuration to file for inspection
-cat ./configuration.nix > /mnt/debug-config.txt
-echo "DEBUG: configuration.nix written to /mnt/debug-config.txt"
+cat ./configuration.nix > ./debug-config.txt
+echo "DEBUG: configuration.nix written to ./debug-config.txt"
 
 # Write flake to file for inspection
-cat ./flake.nix > /mnt/debug-flake.txt
-echo "DEBUG: flake.nix written to /mnt/debug-flake.txt"
+cat ./flake.nix > ./debug-flake.txt
+echo "DEBUG: flake.nix written to ./debug-flake.txt"
 
 echo "DEBUG: Checking files exist in /mnt/etc/nixos:"
-ls -la /mnt/etc/nixos/
-
-# Substitute and generate home-manager config
-sed -e "s|USERNAME|$USERNAME|g" \
-    -e "s|PASSWORD|$PASSWORD|g" \
-    "$HOME_TEMPLATE" > "$HOME_OUTPUT"
-
-# (Assume disk partitioning is done; mount root at /mnt)
-# Copy configs in place
-echo "DEBUG: Configuration file contents before copy:"
-cat ./configuration.nix
-echo "DEBUG: End of configuration.nix"
-echo "DEBUG: Flake file contents:"
-cat ./flake.nix
-echo "DEBUG: End of flake.nix"
-echo "DEBUG: Checking current working directory:"
-pwd
-echo "DEBUG: Checking CONFIG_OUTPUT exists:"
-ls -la ./configuration.nix ./flake.nix ./home.nix 2>&1 || echo "Files do not exist"
-
-echo "DEBUG: Checking /mnt/etc/nixos directory exists:"
 ls -la /mnt/etc/nixos/ 2>&1 || echo "Directory does not exist"
 
 cp "$CONFIG_OUTPUT" /mnt/etc/nixos/configuration.nix

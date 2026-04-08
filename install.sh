@@ -149,10 +149,21 @@ sed -e "s|HOSTNAME|$HOSTNAME|g" \
     -e "s|PASSWORD|$PASSWORD|g" \
     "$CONFIG_TEMPLATE" > "$CONFIG_OUTPUT"
 
+# Write configuration to file for inspection
+cat ./configuration.nix > /mnt/debug-config.txt
+echo "DEBUG: configuration.nix written to /mnt/debug-config.txt"
+
 echo "DEBUG: Running sed on flake-template.nix"
 sed -e "s|HOSTNAME|$HOSTNAME|g" \
     -e "s|USERNAME|$USERNAME|g" \
     "$FLAKE_TEMPLATE" > "$FLAKE_OUTPUT"
+
+# Write flake to file for inspection
+cat ./flake.nix > /mnt/debug-flake.txt
+echo "DEBUG: flake.nix written to /mnt/debug-flake.txt"
+
+echo "Press enter to continue with installation..."
+read
 
 # Substitute and generate home-manager config
 sed -e "s|USERNAME|$USERNAME|g" \

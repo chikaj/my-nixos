@@ -134,6 +134,10 @@ CONFIG_TEMPLATE=./nixos/configuration-template.nix
 FLAKE_TEMPLATE=./nixos/flake-template.nix
 HOME_TEMPLATE=./nixos/home-template.nix
 
+echo "DEBUG: Current directory: $(pwd)"
+echo "DEBUG: Checking template files exist:"
+ls -la "$CONFIG_TEMPLATE" "$FLAKE_TEMPLATE" "$HOME_TEMPLATE" 2>&1 || echo "Templates do not exist"
+
 echo "DEBUG: Variable values:"
 echo "  HOSTNAME='$HOSTNAME'"
 echo "  TIMEZONE='$TIMEZONE'"
@@ -181,6 +185,14 @@ echo "DEBUG: End of configuration.nix"
 echo "DEBUG: Flake file contents:"
 cat ./flake.nix
 echo "DEBUG: End of flake.nix"
+echo "DEBUG: Checking current working directory:"
+pwd
+echo "DEBUG: Checking CONFIG_OUTPUT exists:"
+ls -la ./configuration.nix ./flake.nix ./home.nix 2>&1 || echo "Files do not exist"
+
+echo "DEBUG: Checking /mnt/etc/nixos directory exists:"
+ls -la /mnt/etc/nixos/ 2>&1 || echo "Directory does not exist"
+
 cp "$CONFIG_OUTPUT" /mnt/etc/nixos/configuration.nix
 cp "$FLAKE_OUTPUT" /mnt/etc/nixos/flake.nix
 cp "$HOME_OUTPUT" /mnt/etc/nixos/home.nix

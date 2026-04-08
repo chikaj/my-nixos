@@ -162,12 +162,20 @@ sed -e "s|HOSTNAME|$HOSTNAME|g" \
     "$CONFIG_TEMPLATE" > "$CONFIG_OUTPUT"
 
 # Write configuration to file for inspection
-cat ./configuration.nix > ./debug-config.txt
-echo "DEBUG: configuration.nix written to ./debug-config.txt"
+if [ -f ./configuration.nix ]; then
+    cat ./configuration.nix > ./debug-config.txt
+    echo "DEBUG: configuration.nix written to ./debug-config.txt"
+else
+    echo "DEBUG: ERROR - ./configuration.nix does not exist"
+fi
 
 # Write flake to file for inspection
-cat ./flake.nix > ./debug-flake.txt
-echo "DEBUG: flake.nix written to ./debug-flake.txt"
+if [ -f ./flake.nix ]; then
+    cat ./flake.nix > ./debug-flake.txt
+    echo "DEBUG: flake.nix written to ./debug-flake.txt"
+else
+    echo "DEBUG: ERROR - ./flake.nix does not exist"
+fi
 
 echo "DEBUG: Checking files exist in /mnt/etc/nixos:"
 ls -la /mnt/etc/nixos/ 2>&1 || echo "Directory does not exist"

@@ -153,6 +153,12 @@ sed -e "s|USERNAME|$USERNAME|g" \
 
 # (Assume disk partitioning is done; mount root at /mnt)
 # Copy configs in place
+echo "DEBUG: Configuration file contents before copy:"
+cat ./configuration.nix
+echo "DEBUG: End of configuration.nix"
+echo "DEBUG: Flake file contents:"
+cat ./flake.nix
+echo "DEBUG: End of flake.nix"
 cp "$CONFIG_OUTPUT" /mnt/etc/nixos/configuration.nix
 cp "$FLAKE_OUTPUT" /mnt/etc/nixos/flake.nix
 cp "$HOME_OUTPUT" /mnt/etc/nixos/home.nix

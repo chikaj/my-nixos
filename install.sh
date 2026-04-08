@@ -84,6 +84,7 @@ sudo mount -t vfat "$EFI" /mnt/boot
 # Query user information
 read -p "Enter desired hostname: " HOSTNAME
 HOSTNAME=$(echo "$HOSTNAME" | tr -d '\n')
+echo "DEBUG: After read HOSTNAME='$HOSTNAME'"
 if [ -z "$HOSTNAME" ]; then
     echo "Error: HOSTNAME is not set." >&2
     exit 1
@@ -91,6 +92,7 @@ fi
 # timedatectl list-timezones
 read -p "Enter desired time zone (e.g., America/Chicago): " TIMEZONE
 TIMEZONE=$(echo "$TIMEZONE" | tr -d '\n')
+echo "DEBUG: After read TIMEZONE='$TIMEZONE'"
 if [ -z "$TIMEZONE" ]; then
     echo "Error: TIMEZONE is not set." >&2
     exit 1
@@ -98,6 +100,7 @@ fi
 
 read -p "Enter desired username: " USERNAME
 USERNAME=$(echo "$USERNAME" | tr -d '\n')
+echo "DEBUG: After read USERNAME='$USERNAME'"
 if [ -z "$USERNAME" ]; then
     echo "Error: USERNAME is not set." >&2
     exit 1
@@ -142,6 +145,11 @@ FLAKE_OUTPUT=./flake.nix
 HOME_OUTPUT=./home.nix
 
 # Substitute variables into config template
+echo "DEBUG: Before sed - showing variable values:"
+echo "  HOSTNAME='$HOSTNAME'"
+echo "  TIMEZONE='$TIMEZONE'"
+echo "  USERNAME='$USERNAME'"
+echo "  PASSWORD='$PASSWORD'"
 echo "DEBUG: Running sed on configuration-template.nix"
 sed -e "s|HOSTNAME|$HOSTNAME|g" \
     -e "s|TIMEZONE|$TIMEZONE|g" \
@@ -161,9 +169,6 @@ sed -e "s|HOSTNAME|$HOSTNAME|g" \
 # Write flake to file for inspection
 cat ./flake.nix > /mnt/debug-flake.txt
 echo "DEBUG: flake.nix written to /mnt/debug-flake.txt"
-
-echo "Press enter to continue with installation..."
-read
 
 # Substitute and generate home-manager config
 sed -e "s|USERNAME|$USERNAME|g" \

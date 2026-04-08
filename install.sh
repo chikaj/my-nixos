@@ -131,17 +131,25 @@ CONFIG_TEMPLATE=./nixos/configuration-template.nix
 FLAKE_TEMPLATE=./nixos/flake-template.nix
 HOME_TEMPLATE=./nixos/home-template.nix
 
+echo "DEBUG: Variable values:"
+echo "  HOSTNAME='$HOSTNAME'"
+echo "  TIMEZONE='$TIMEZONE'"
+echo "  USERNAME='$USERNAME'"
+echo "  PASSWORD='$PASSWORD'"
+
 CONFIG_OUTPUT=./configuration.nix
 FLAKE_OUTPUT=./flake.nix
 HOME_OUTPUT=./home.nix
 
 # Substitute variables into config template
+echo "DEBUG: Running sed on configuration-template.nix"
 sed -e "s|HOSTNAME|$HOSTNAME|g" \
     -e "s|TIMEZONE|$TIMEZONE|g" \
     -e "s|USERNAME|$USERNAME|g" \
     -e "s|PASSWORD|$PASSWORD|g" \
     "$CONFIG_TEMPLATE" > "$CONFIG_OUTPUT"
 
+echo "DEBUG: Running sed on flake-template.nix"
 sed -e "s|HOSTNAME|$HOSTNAME|g" \
     -e "s|USERNAME|$USERNAME|g" \
     "$FLAKE_TEMPLATE" > "$FLAKE_OUTPUT"

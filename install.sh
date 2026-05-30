@@ -52,13 +52,13 @@ fi
 
 # Create mount points
 sudo mkdir -p /mnt/{etc,nix,home,persist,boot}
-sudo mkdir -p /mnt/etc/nixos
+sudo mkdir -p /mnt/{etc/nixos,var/log}
 
 # Mount Btrfs subvolumes
-# ##### DOES root NEED TO BE IN THE LIST, ESPECIALLY WHEN IT IS LATER EXCLUDED? WHY THE FIRST target? IT'S LATER REPLACED
 for subvol in root nix home persist log; do
     target="/mnt"
-    [ "$subvol" != "root" ] && target="/mnt/$subvol"
+    [ "$subvol" = "log" ] && target="/mnt/var/log"
+    [ "$subvol" != "root" ] && [ "$subvol" != "log" ] && target="/mnt/$subvol"
     sudo mount -o subvol="$subvol",compress=zstd,noatime /dev/mapper/cryptroot "$target"
 done
 
@@ -167,7 +167,7 @@ sed -e "s|HOSTNAME|$HOSTNAME|g" \
     -e "s|PASSWORD|$PASSWORD|g" \
     "$HOME_TEMPLATE" > "$HOME_OUTPUT"
 
-# Write configuration to file for inspection
+# Write generated configs to debug files for inspection
 if [ -f ./configuration.nix ]; then
     cat ./configuration.nix > ./debug-config.txt
     echo "DEBUG: configuration.nix written to ./debug-config.txt"

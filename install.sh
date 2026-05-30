@@ -202,5 +202,7 @@ echo "  grep TIMEZONE /mnt/etc/nixos/modules/00-default.nix"
 echo "Confirm mount points with: mount | grep /mnt"
 
 # Generate lock file and install with flakes
-sudo nix flake lock /mnt/etc/nixos
-sudo nixos-install --flake /mnt/etc/nixos#${HOSTNAME}
+sudo env NIX_CONFIG="extra-experimental-features = nix-command flakes" \
+  nix flake lock /mnt/etc/nixos
+sudo env NIX_CONFIG="extra-experimental-features = nix-command flakes" \
+  nixos-install --flake /mnt/etc/nixos#${HOSTNAME}

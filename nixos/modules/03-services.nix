@@ -2,7 +2,7 @@
 
 {
   xdg.portal.enable = true;
-  xdg.portal.wl-roots.enable = true;
+  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
   xdg.portal.config.common.default = [ "*" ];
 
   # Required services for Noctalia

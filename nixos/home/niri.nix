@@ -37,7 +37,7 @@
       };
 
       overview = {
-        workspace-shadow.off = true;
+        workspace-shadow.enable = false;
       };
 
       debug = {

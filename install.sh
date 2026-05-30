@@ -44,11 +44,11 @@ if ! mount | grep -q "/mnt "; then
     sudo cryptsetup open "$CRYPTROOT" cryptroot
 fi
 
-# Mount root subvolume only
-for subvol in root; do
-    target="/mnt"
-    sudo mount -o subvol="$subvol",compress=zstd,noatime /dev/mapper/cryptroot "$target"
-done
+# # Mount root subvolume only
+# for subvol in root; do
+#     target="/mnt"
+#     sudo mount -o subvol="$subvol",compress=zstd,noatime /dev/mapper/cryptroot "$target"
+# done
 
 # Create mount points
 sudo mkdir -p /mnt/{etc,nix,home,persist,boot}
@@ -56,7 +56,7 @@ sudo mkdir -p /mnt/etc/nixos
 
 # Mount Btrfs subvolumes
 # ##### DOES root NEED TO BE IN THE LIST, ESPECIALLY WHEN IT IS LATER EXCLUDED? WHY THE FIRST target? IT'S LATER REPLACED
-for subvol in root nix home persist; do
+for subvol in root nix home persist log; do
     target="/mnt"
     [ "$subvol" != "root" ] && target="/mnt/$subvol"
     sudo mount -o subvol="$subvol",compress=zstd,noatime /dev/mapper/cryptroot "$target"
@@ -105,18 +105,18 @@ echo "DEBUG: Before nixos-generate-config, PASSWORD set"
 echo "DEBUG: Running nixos-generate-config --root /mnt"
 
 # Generate hardware config
-nixos-generate-config --root /mnt
+sudo nixos-generate-config --root /mnt
 
 echo "DEBUG: After nixos-generate-config, checking /mnt/etc/nixos:"
-ls -la /mnt/etc/nixos/ 2>&1 || echo "Directory does not exist"
+sudo ls -la /mnt/etc/nixos/ 2>&1 || echo "Directory does not exist"
 
 # Copy modules and home directories to /mnt/etc/nixos
 # Substitute variables in the files
-cp -r ./nixos/modules /mnt/etc/nixos/
-cp -r ./nixos/home /mnt/etc/nixos/
+sudo cp -r ./nixos/modules /mnt/etc/nixos/
+sudo cp -r ./nixos/home /mnt/etc/nixos/
 
 # Substitute variables in the copied directories
-find /mnt/etc/nixos/modules /mnt/etc/nixos/home -type f -name "*.nix" -exec sed -i \
+sudo find /mnt/etc/nixos/modules /mnt/etc/nixos/home -type f -name "*.nix" -exec sed -i \
     -e "s|USERNAME|$USERNAME|g" \
     -e "s|PASSWORD|$PASSWORD|g" \
     -e "s|TIMEZONE|$TIMEZONE|g" \
@@ -153,6 +153,20 @@ sed -e "s|HOSTNAME|$HOSTNAME|g" \
     -e "s|PASSWORD|$PASSWORD|g" \
     "$CONFIG_TEMPLATE" > "$CONFIG_OUTPUT"
 
+echo "DEBUG: Running sed on flake-template.nix"
+sed -e "s|HOSTNAME|$HOSTNAME|g" \
+    -e "s|TIMEZONE|$TIMEZONE|g" \
+    -e "s|USERNAME|$USERNAME|g" \
+    -e "s|PASSWORD|$PASSWORD|g" \
+    "$FLAKE_TEMPLATE" > "$FLAKE_OUTPUT"
+
+echo "DEBUG: Running sed on home-template.nix"
+sed -e "s|HOSTNAME|$HOSTNAME|g" \
+    -e "s|TIMEZONE|$TIMEZONE|g" \
+    -e "s|USERNAME|$USERNAME|g" \
+    -e "s|PASSWORD|$PASSWORD|g" \
+    "$HOME_TEMPLATE" > "$HOME_OUTPUT"
+
 # Write configuration to file for inspection
 if [ -f ./configuration.nix ]; then
     cat ./configuration.nix > ./debug-config.txt
@@ -170,11 +184,11 @@ else
 fi
 
 echo "DEBUG: Checking files exist in /mnt/etc/nixos:"
-ls -la /mnt/etc/nixos/ 2>&1 || echo "Directory does not exist"
+sudo ls -la /mnt/etc/nixos/ 2>&1 || echo "Directory does not exist"
 
-cp "$CONFIG_OUTPUT" /mnt/etc/nixos/configuration.nix
-cp "$FLAKE_OUTPUT" /mnt/etc/nixos/flake.nix
-cp "$HOME_OUTPUT" /mnt/etc/nixos/home.nix
+sudo cp "$CONFIG_OUTPUT" /mnt/etc/nixos/configuration.nix
+sudo cp "$FLAKE_OUTPUT" /mnt/etc/nixos/flake.nix
+sudo cp "$HOME_OUTPUT" /mnt/etc/nixos/home.nix
 
 echo "All configs are now in /mnt/etc/nixos/."
 echo "Confirm partitions with: lsblk."
@@ -192,4 +206,4 @@ echo "  nixos-install --flake /mnt/etc/nixos#$HOSTNAME"
 echo "to complete installation. Then reboot and login as $USERNAME."
 
 # Install with flakes:
-nixos-install --flake /mnt/etc/nixos#${HOSTNAME}
+sudo nixos-install --flake /mnt/etc/nixos#${HOSTNAME}

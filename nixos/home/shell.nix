@@ -38,7 +38,7 @@
   programs.zsh = {
     enable = true;
     shellAliases = {};
-    initExtra = ''
+    initContent = ''
       export EDITOR=hx
     '';
   };

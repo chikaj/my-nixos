@@ -2,7 +2,7 @@
 
 {
   # Memory optimization: ZRAM and swappiness
-  services.zramSwap.enable = true;
+  zramSwap.enable = true;
   boot.kernel.sysctl."vm.swappiness" = 10;
 
   # Swap file inside encrypted root

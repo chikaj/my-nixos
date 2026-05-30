@@ -11,28 +11,12 @@ if [ -z "$DEVICENAME" ]; then
     exit 1
 fi
 
-echo
-read -s -p "Enter your desired LUKS password: " LUKSPASS
-
-echo
-read -s -p "Confirm desired LUKS password: " LUKSPASS2
-echo
-if [ "$LUKSPASS" != "$LUKSPASS2" ]; then
-  echo "LUKS passwords do not match!" >&2
-  exit 1
-fi
-
-# Write password to a temporary keyfile
-echo -n "$LUKSPASS" > /tmp/secret.key
-
 # Copy and modify template disko-config, replacing device name
 sed "s|/dev/mydisk|$DEVICENAME|g" ./disko-config-template.nix > ./disko-config.nix
 
 # Trigger disko with supplied config and password
+# ##### THE PASSWORD ENTERED PREVIOUSLY ISN'T USED IN THE FOLLOWING COMMAND. CAN IT BE USE? OTHERWISE, WHY ASK FOR IT?
 sudo nix --extra-experimental-features 'nix-command flakes' run github:nix-community/disko -- --mode disko ./disko-config.nix
-
-# Remove temporary keyfile after partitioning for security
-rm -f /tmp/secret.key
 
 echo "Disk partitioning complete. Proceeding with NixOS install steps."
 
@@ -71,6 +55,7 @@ sudo mkdir -p /mnt/{etc,nix,home,persist,boot}
 sudo mkdir -p /mnt/etc/nixos
 
 # Mount Btrfs subvolumes
+# ##### DOES root NEED TO BE IN THE LIST, ESPECIALLY WHEN IT IS LATER EXCLUDED? WHY THE FIRST target? IT'S LATER REPLACED
 for subvol in root nix home persist; do
     target="/mnt"
     [ "$subvol" != "root" ] && target="/mnt/$subvol"

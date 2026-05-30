@@ -16,6 +16,6 @@
     }
   ];
 
-  # Hibernation support
-  boot.kernelParams = [ "resume=/swap/swapfile" ];
+  # Hibernation support (disabled for now — needs resume offset calc for Btrfs+LUKS swapfile)
+  # `boot.resumeDevice = "/dev/mapper/cryptroot";`
 }

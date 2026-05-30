@@ -16,7 +16,7 @@ sed "s|/dev/mydisk|$DEVICENAME|g" ./disko-config-template.nix > ./disko-config.n
 
 # Trigger disko with supplied config and password
 # ##### THE PASSWORD ENTERED PREVIOUSLY ISN'T USED IN THE FOLLOWING COMMAND. CAN IT BE USE? OTHERWISE, WHY ASK FOR IT?
-sudo nix --extra-experimental-features 'nix-command flakes' run github:nix-community/disko -- --mode disko ./disko-config.nix
+sudo nix --extra-experimental-features 'nix-command flakes' run github:nix-community/disko/latest -- --mode disko ./disko-config.nix
 
 echo "Disk partitioning complete. Proceeding with NixOS install steps."
 

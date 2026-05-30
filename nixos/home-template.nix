@@ -2,7 +2,7 @@
 
 {
   imports = [
-    /mnt/etc/nixos/home/default.nix
+    ./home/default.nix
   ];
 
   home.username = "USERNAME";

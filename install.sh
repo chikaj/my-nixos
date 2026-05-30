@@ -66,6 +66,14 @@ done
 sudo mount -t vfat "$EFI" /mnt/boot
 # === END MOUNT ===
 
+# Get EFI partition UUID for stable filesystem reference
+BOOTUUID=$(sudo blkid -s UUID -o value "$EFI" 2>/dev/null || echo "")
+if [ -z "$BOOTUUID" ]; then
+    echo "Error: Could not determine EFI partition UUID." >&2
+    exit 1
+fi
+echo "DEBUG: BOOTUUID='$BOOTUUID'"
+
 # Query user information
 read -p "Enter desired hostname: " HOSTNAME
 HOSTNAME=$(echo "$HOSTNAME" | tr -d '\n')
@@ -104,8 +112,8 @@ fi
 echo "DEBUG: Before nixos-generate-config, PASSWORD set"
 echo "DEBUG: Running nixos-generate-config --root /mnt"
 
-# Generate hardware config
-sudo nixos-generate-config --root /mnt
+# Generate hardware config (skip filesystems to avoid duplicates with our template)
+sudo nixos-generate-config --root /mnt --no-filesystems
 
 echo "DEBUG: After nixos-generate-config, checking /mnt/etc/nixos:"
 sudo ls -la /mnt/etc/nixos/ 2>&1 || echo "Directory does not exist"
@@ -151,6 +159,7 @@ sed -e "s|HOSTNAME|$HOSTNAME|g" \
     -e "s|TIMEZONE|$TIMEZONE|g" \
     -e "s|USERNAME|$USERNAME|g" \
     -e "s|PASSWORD|$PASSWORD|g" \
+    -e "s|BOOTUUID|$BOOTUUID|g" \
     "$CONFIG_TEMPLATE" > "$CONFIG_OUTPUT"
 
 echo "DEBUG: Running sed on flake-template.nix"

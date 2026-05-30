@@ -5,14 +5,6 @@
   services.zramSwap.enable = true;
   boot.kernel.sysctl."vm.swappiness" = 10;
 
-  # Unlock LUKS early for initramfs
-  boot.initrd.luks.devices = {
-    cryptroot = {
-      device = "/dev/mapper/cryptroot";
-      preLVM = true;
-    };
-  };
-
   # Swap file inside encrypted root
   swapDevices = [
     {

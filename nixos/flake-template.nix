@@ -34,7 +34,10 @@
           niri-flake.nixosModules.niri
           home-manager.nixosModules.home-manager
           {
-            home-manager.users.USERNAME = ./home.nix;
+            home-manager = {
+              extraSpecialArgs = { inherit inputs; };
+              users.USERNAME = ./home.nix;
+            };
           }
         ];
       };

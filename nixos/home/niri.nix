@@ -10,18 +10,24 @@
         }
       ];
 
-      window-rule = {
-        geometry-corner-radius = 20;
-        clip-to-geometry = true;
-      };
-
-      layer-rule = [
+      window-rules = [
         {
-          match-namespace = "^noctalia-overview.*";
+          geometry-corner-radius = 20;
+          clip-to-geometry = true;
+        }
+      ];
+
+      layer-rules = [
+        {
+          matches = [{
+            namespace = "^noctalia-overview.*";
+          }];
           place-within-backdrop = true;
         }
         {
-          match-namespace = "^noctalia-wallpaper.*";
+          matches = [{
+            namespace = "^noctalia-wallpaper.*";
+          }];
           place-within-backdrop = true;
         }
       ];

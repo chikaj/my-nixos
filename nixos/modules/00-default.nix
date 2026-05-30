@@ -19,7 +19,7 @@
     ];
     trusted-public-keys = [
       "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
-      "niri.cachix.org-1:EjH3R0Yj5t5pJbM1rWvQ3L8xK9yC4h7fA6eB2sD5gU0="
+      "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
     ];
   };
 

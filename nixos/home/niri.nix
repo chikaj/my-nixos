@@ -12,7 +12,7 @@
 
       window-rules = [
         {
-          geometry-corner-radius = 20;
+          geometry-corner-radius = { top-left = 20; top-right = 20; bottom-right = 20; bottom-left = 20; };
           clip-to-geometry = true;
         }
       ];

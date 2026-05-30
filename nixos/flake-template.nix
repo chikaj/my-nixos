@@ -22,20 +22,21 @@
       "niri.cachix.org-1:EjH3R0Yj5t5pJbM1rWvQ3L8xK9yC4h7fA6eB2sD5gU0="
     ];
   };
-  outputs = inputs@{ self, nixpkgs, home-manager, flake-utils, niri-flake, noctalia, ... }:
-    flake-utils.lib.eachDefaultSystem (system:
-      {
-        nixosConfigurations.HOSTNAME = nixpkgs.lib.nixosSystem {
-          system = system;
-          specialArgs = { inherit inputs; };
-          modules = [
-            ./configuration.nix
-            niri-flake.nixosModules.niri
-            home-manager.nixosModules.home-manager
-            {
-              home-manager.users.USERNAME = ./home.nix;
-            }
-          ];
-        };
-      });
+  outputs = inputs@{ self, nixpkgs, home-manager, niri-flake, noctalia, ... }:
+    let
+      system = "x86_64-linux";
+    in {
+      nixosConfigurations.HOSTNAME = nixpkgs.lib.nixosSystem {
+        inherit system;
+        specialArgs = { inherit inputs; };
+        modules = [
+          ./configuration.nix
+          niri-flake.nixosModules.niri
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.users.USERNAME = ./home.nix;
+          }
+        ];
+      };
+    };
 }

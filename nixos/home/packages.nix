@@ -24,7 +24,7 @@
     nerd-fonts.jetbrains-mono
     nerd-fonts.fira-code
     nerd-fonts.hack
-    nerd-fonts.meslo
+    nerd-fonts.meslo-lg
     nerd-fonts.caskaydia-cove
     nerd-fonts.caskaydia-mono
   ];

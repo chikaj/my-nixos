@@ -200,10 +200,7 @@ echo "  grep USERNAME /mnt/etc/nixos/modules/01-user.nix"
 echo "  grep PASSWORD /mnt/etc/nixos/modules/01-user.nix"
 echo "  grep TIMEZONE /mnt/etc/nixos/modules/00-default.nix"
 echo "Confirm mount points with: mount | grep /mnt"
-echo "---"
-echo "All configs are now properly in /mnt/etc/nixos/. Run:"
-echo "  nixos-install --flake /mnt/etc/nixos#$HOSTNAME"
-echo "to complete installation. Then reboot and login as $USERNAME."
 
-# Install with flakes:
+# Generate lock file and install with flakes
+sudo nix flake lock /mnt/etc/nixos
 sudo nixos-install --flake /mnt/etc/nixos#${HOSTNAME}

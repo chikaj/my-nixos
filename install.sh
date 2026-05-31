@@ -74,6 +74,14 @@ if [ -z "$BOOTUUID" ]; then
 fi
 echo "DEBUG: BOOTUUID='$BOOTUUID'"
 
+# Get LUKS partition UUID for the cryptroot device
+CRYPTUUID=$(sudo blkid -s UUID -o value "$CRYPTROOT" 2>/dev/null || echo "")
+if [ -z "$CRYPTUUID" ]; then
+    echo "Error: Could not determine LUKS partition UUID." >&2
+    exit 1
+fi
+echo "DEBUG: CRYPTUUID='$CRYPTUUID'"
+
 # Query user information
 read -p "Enter desired hostname: " HOSTNAME
 HOSTNAME=$(echo "$HOSTNAME" | tr -d '\n')
@@ -153,6 +161,7 @@ echo "  TIMEZONE='$TIMEZONE'"
 echo "  USERNAME='$USERNAME'"
 echo "  PASSWORD='$PASSWORD'"
 echo "  HAS_NVIDIA='$HAS_NVIDIA'"
+echo "  CRYPTUUID='$CRYPTUUID'"
 
 CONFIG_OUTPUT=./configuration.nix
 FLAKE_OUTPUT=./flake.nix
@@ -170,6 +179,7 @@ sed -e "s|HOSTNAME|$HOSTNAME|g" \
     -e "s|USERNAME|$USERNAME|g" \
     -e "s|PASSWORD|$PASSWORD|g" \
     -e "s|BOOTUUID|$BOOTUUID|g" \
+    -e "s|CRYPTUUID|$CRYPTUUID|g" \
     "$CONFIG_TEMPLATE" > "$CONFIG_OUTPUT"
 
 echo "DEBUG: Running sed on flake-template.nix"

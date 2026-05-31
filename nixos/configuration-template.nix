@@ -10,6 +10,11 @@
 
   networking.hostName = "HOSTNAME";
 
+  boot.initrd.luks.devices."cryptroot" = {
+    device = "/dev/disk/by-uuid/CRYPTUUID";
+    preLVM = false;
+  };
+
   fileSystems = {
     "/" = {
       device = "/dev/mapper/cryptroot";

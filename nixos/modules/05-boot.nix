@@ -3,6 +3,9 @@
 {
   boot.initrd.systemd.enable = true;
 
+  # Force console to physical display (fixes invisible LUKS prompt on NVIDIA)
+  boot.kernelParams = [ "console=tty0" ];
+
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 

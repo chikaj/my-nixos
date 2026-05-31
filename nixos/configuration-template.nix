@@ -1,9 +1,11 @@
-{ ... }:
+{ lib, ... }:
 
 {
   imports = [
     ./modules/00-default.nix
     ./hardware-configuration.nix
+  ] ++ lib.optionals (builtins.pathExists ./modules/02-nvidia.nix) [
+    ./modules/02-nvidia.nix
   ];
 
   networking.hostName = "HOSTNAME";

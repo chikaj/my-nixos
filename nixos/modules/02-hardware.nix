@@ -6,16 +6,6 @@
     enable32Bit = true;
   };
 
-  hardware.nvidia = {
-    modesetting.enable = true;
-    open = false;
-    powerManagement.enable = false;
-    nvidiaSettings = true;
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
-  };
-
-  services.xserver.videoDrivers = [ "nvidia" ];
-
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;

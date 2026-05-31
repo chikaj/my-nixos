@@ -123,6 +123,12 @@ sudo ls -la /mnt/etc/nixos/ 2>&1 || echo "Directory does not exist"
 sudo cp -r ./nixos/modules /mnt/etc/nixos/
 sudo cp -r ./nixos/home /mnt/etc/nixos/
 
+# Remove NVIDIA module on non-NVIDIA machines
+if [ "$HAS_NVIDIA" != "y" ] && [ "$HAS_NVIDIA" != "Y" ]; then
+    echo "NVIDIA GPU not detected — removing NVIDIA module."
+    sudo rm /mnt/etc/nixos/modules/02-nvidia.nix
+fi
+
 # Substitute variables in the copied directories
 sudo find /mnt/etc/nixos/modules /mnt/etc/nixos/home -type f -name "*.nix" -exec sed -i \
     -e "s|USERNAME|$USERNAME|g" \
@@ -138,11 +144,15 @@ echo "DEBUG: Current directory: $(pwd)"
 echo "DEBUG: Checking template files exist:"
 ls -la "$CONFIG_TEMPLATE" "$FLAKE_TEMPLATE" "$HOME_TEMPLATE" 2>&1 || echo "Templates do not exist"
 
+read -p "Does this machine have an NVIDIA GPU? (y/N): " HAS_NVIDIA
+HAS_NVIDIA=$(echo "$HAS_NVIDIA" | tr -d '\n')
+
 echo "DEBUG: Variable values:"
 echo "  HOSTNAME='$HOSTNAME'"
 echo "  TIMEZONE='$TIMEZONE'"
 echo "  USERNAME='$USERNAME'"
 echo "  PASSWORD='$PASSWORD'"
+echo "  HAS_NVIDIA='$HAS_NVIDIA'"
 
 CONFIG_OUTPUT=./configuration.nix
 FLAKE_OUTPUT=./flake.nix

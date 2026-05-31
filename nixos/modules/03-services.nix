@@ -9,12 +9,17 @@
   services.power-profiles-daemon.enable = true;
   services.upower.enable = true;
 
-  # Tuigreet + greetd setup for session selection
+  # Tuigreet + greetd setup
   services.greetd = {
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --sessions /run/current-system/sw/share/wayland-sessions:/run/current-system/sw/share/xsessions";
+        command = ''
+          ${pkgs.tuigreet}/bin/tuigreet \
+            --time \
+            --remember \
+            --cmd ${config.programs.niri.package}/bin/niri-session
+        '';
         user = "greeter";
       };
     };

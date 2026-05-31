@@ -109,6 +109,9 @@ if [ "$PASSWORD" != "$PASSWORD2" ]; then
   exit 1
 fi
 
+read -p "Does this machine have an NVIDIA GPU? (y/N): " HAS_NVIDIA
+HAS_NVIDIA=$(echo "$HAS_NVIDIA" | tr -d '\n')
+
 echo "DEBUG: Before nixos-generate-config, PASSWORD set"
 echo "DEBUG: Running nixos-generate-config --root /mnt"
 
@@ -143,9 +146,6 @@ HOME_TEMPLATE=./nixos/home-template.nix
 echo "DEBUG: Current directory: $(pwd)"
 echo "DEBUG: Checking template files exist:"
 ls -la "$CONFIG_TEMPLATE" "$FLAKE_TEMPLATE" "$HOME_TEMPLATE" 2>&1 || echo "Templates do not exist"
-
-read -p "Does this machine have an NVIDIA GPU? (y/N): " HAS_NVIDIA
-HAS_NVIDIA=$(echo "$HAS_NVIDIA" | tr -d '\n')
 
 echo "DEBUG: Variable values:"
 echo "  HOSTNAME='$HOSTNAME'"

@@ -1,14 +1,11 @@
-{ config, pkgs, ... }:
+{ ... }:
 
 {
-  nixpkgs.config.allowUnfree = true;
-
   imports = [
     ./niri.nix
     ./noctalia.nix
     ./shell.nix
     ./editor.nix
-    ./vivaldi.nix
     ./packages.nix
   ];
 

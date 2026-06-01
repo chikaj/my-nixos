@@ -6,6 +6,7 @@
     ./noctalia.nix
     ./shell.nix
     ./editor.nix
+    ./vivaldi.nix
     ./packages.nix
   ];
 

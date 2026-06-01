@@ -6,7 +6,7 @@
     settings = {
       spawn-at-startup = [
         {
-          command = [ "noctalia-shell" ];
+          argv = [ "noctalia-shell" ];
         }
       ];
 
@@ -34,6 +34,23 @@
 
       layout = {
         background-color = "#1e1e2e";
+      };
+
+      environment = {
+        TERMINAL = "ghostty";
+        NIXOS_OZONE_WL = "1";
+      };
+
+      binds = {
+        "Mod+T".action."spawn-terminal" = {};
+        "Mod+Q".action."close-window" = {};
+        "Mod+Shift+Q".action.spawn = [ "niri" "msg" "quit" ];
+        "Mod+W".action."focus-workspace-down" = {};
+        "Mod+E".action."focus-workspace-up" = {};
+        "Mod+Shift+W".action."move-window-to-workspace-down" = {};
+        "Mod+Shift+E".action."move-window-to-workspace-up" = {};
+        "Mod+F".action."toggle-window-floating" = {};
+        "Mod+Shift+F".action."toggle-fullscreen" = {};
       };
 
       overview = {

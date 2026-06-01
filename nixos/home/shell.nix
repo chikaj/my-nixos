@@ -12,6 +12,13 @@
     };
   };
 
+  programs.yazi = {
+    enable = true;
+    shellWrapperName = "y";
+    enableZshIntegration = true;
+    enableNushellIntegration = true;
+  };
+
   programs.nushell = {
     enable = true;
     configFile.text = ''

@@ -17,6 +17,17 @@
     shellWrapperName = "y";
     enableZshIntegration = true;
     enableNushellIntegration = true;
+    extraPackages = with pkgs; [
+      ffmpeg
+      _7zz
+      jq
+      poppler
+      fd
+      ripgrep
+      fzf
+      zoxide
+      resvg
+    ];
   };
 
   programs.nushell = {

@@ -2,7 +2,7 @@
 
 {
   home.packages = with pkgs; [
-    (vivaldi.override { enableWidevine = true; proprietaryCodecs = true; })
+    vivaldi
   ];
 
   xdg.mimeApps.enable = true;

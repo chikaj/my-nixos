@@ -5,7 +5,8 @@
     vivaldi-widevine
   ];
 
-  xdg.mime.defaults = {
+  xdg.mimeApps.enable = true;
+  xdg.mimeApps.defaultApplications = {
     "text/html" = "vivaldi.desktop";
     "x-scheme-handler/http" = "vivaldi.desktop";
     "x-scheme-handler/https" = "vivaldi.desktop";

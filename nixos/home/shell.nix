@@ -17,8 +17,6 @@
     configFile.text = ''
       $env.PROMPT_COMMAND = {|| starship_prompt }
       $env.config.buffer_editor = "hx"
-      alias y = yazi
-      alias spf = superfile
     '';
   };
 
@@ -39,10 +37,7 @@
 
   programs.zsh = {
     enable = true;
-    shellAliases = {
-      y = "yazi";
-      spf = "superfile";
-    };
+    shellAliases = {};
     initContent = ''
       export EDITOR=hx
     '';

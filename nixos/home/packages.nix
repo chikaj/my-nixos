@@ -20,8 +20,17 @@
     wtype
     xdg-desktop-portal-gtk
 
-    # File manager
+    # File managers
     yazi
+    superfile
+
+    # Shortcut commands
+    (pkgs.writeShellScriptBin "y" ''
+      exec ${pkgs.yazi}/bin/yazi "$@"
+    '')
+    (pkgs.writeShellScriptBin "spf" ''
+      exec ${pkgs.superfile}/bin/superfile "$@"
+    '')
 
     # Fonts
     nerd-fonts.jetbrains-mono

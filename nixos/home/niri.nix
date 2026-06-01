@@ -50,6 +50,7 @@
         "Mod+Shift+W".action."move-window-to-workspace-down" = {};
         "Mod+Shift+E".action."move-window-to-workspace-up" = {};
         "Mod+F".action."toggle-window-floating" = {};
+        "Mod+Space".action.spawn = [ "${inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/noctalia-shell" "ipc" "call" "launcher" "toggle" ];
         "Mod+Shift+F".action."fullscreen-window" = {};
       };
 

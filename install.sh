@@ -72,20 +72,16 @@ if [ -z "$BOOTUUID" ]; then
     echo "Error: Could not determine EFI partition UUID." >&2
     exit 1
 fi
-echo "DEBUG: BOOTUUID='$BOOTUUID'"
-
 # Get LUKS partition UUID for the cryptroot device
 CRYPTUUID=$(sudo blkid -s UUID -o value "$CRYPTROOT" 2>/dev/null || echo "")
 if [ -z "$CRYPTUUID" ]; then
     echo "Error: Could not determine LUKS partition UUID." >&2
     exit 1
 fi
-echo "DEBUG: CRYPTUUID='$CRYPTUUID'"
 
 # Query user information
 read -p "Enter desired hostname: " HOSTNAME
 HOSTNAME=$(echo "$HOSTNAME" | tr -d '\n')
-echo "DEBUG: After read HOSTNAME='$HOSTNAME'"
 if [ -z "$HOSTNAME" ]; then
     echo "Error: HOSTNAME is not set." >&2
     exit 1
@@ -93,7 +89,6 @@ fi
 # timedatectl list-timezones
 read -p "Enter desired time zone (e.g., America/Chicago): " TIMEZONE
 TIMEZONE=$(echo "$TIMEZONE" | tr -d '\n')
-echo "DEBUG: After read TIMEZONE='$TIMEZONE'"
 if [ -z "$TIMEZONE" ]; then
     echo "Error: TIMEZONE is not set." >&2
     exit 1
@@ -101,8 +96,6 @@ fi
 
 read -p "Enter desired username: " USERNAME
 USERNAME=$(echo "$USERNAME" | tr -d '\n')
-echo "DEBUG: After read USERNAME='$USERNAME'"
-echo "DEBUG: About to prompt for password"
 if [ -z "$USERNAME" ]; then
     echo "Error: USERNAME is not set." >&2
     exit 1
@@ -120,14 +113,8 @@ fi
 read -p "Does this machine have an NVIDIA GPU? (y/N): " HAS_NVIDIA
 HAS_NVIDIA=$(echo "$HAS_NVIDIA" | tr -d '\n')
 
-echo "DEBUG: Before nixos-generate-config, PASSWORD set"
-echo "DEBUG: Running nixos-generate-config --root /mnt"
-
 # Generate hardware config (skip filesystems to avoid duplicates with our template)
 sudo nixos-generate-config --root /mnt --no-filesystems
-
-echo "DEBUG: After nixos-generate-config, checking /mnt/etc/nixos:"
-sudo ls -la /mnt/etc/nixos/ 2>&1 || echo "Directory does not exist"
 
 # Copy modules and home directories to /mnt/etc/nixos
 # Substitute variables in the files
@@ -151,29 +138,11 @@ CONFIG_TEMPLATE=./nixos/configuration-template.nix
 FLAKE_TEMPLATE=./nixos/flake-template.nix
 HOME_TEMPLATE=./nixos/home-template.nix
 
-echo "DEBUG: Current directory: $(pwd)"
-echo "DEBUG: Checking template files exist:"
-ls -la "$CONFIG_TEMPLATE" "$FLAKE_TEMPLATE" "$HOME_TEMPLATE" 2>&1 || echo "Templates do not exist"
-
-echo "DEBUG: Variable values:"
-echo "  HOSTNAME='$HOSTNAME'"
-echo "  TIMEZONE='$TIMEZONE'"
-echo "  USERNAME='$USERNAME'"
-echo "  PASSWORD='$PASSWORD'"
-echo "  HAS_NVIDIA='$HAS_NVIDIA'"
-echo "  CRYPTUUID='$CRYPTUUID'"
-
 CONFIG_OUTPUT=./configuration.nix
 FLAKE_OUTPUT=./flake.nix
 HOME_OUTPUT=./home.nix
 
 # Substitute variables into config template
-echo "DEBUG: Before sed - showing variable values:"
-echo "  HOSTNAME='$HOSTNAME'"
-echo "  TIMEZONE='$TIMEZONE'"
-echo "  USERNAME='$USERNAME'"
-echo "  PASSWORD='$PASSWORD'"
-echo "DEBUG: Running sed on configuration-template.nix"
 sed -e "s|HOSTNAME|$HOSTNAME|g" \
     -e "s|TIMEZONE|$TIMEZONE|g" \
     -e "s|USERNAME|$USERNAME|g" \
@@ -182,38 +151,17 @@ sed -e "s|HOSTNAME|$HOSTNAME|g" \
     -e "s|CRYPTUUID|$CRYPTUUID|g" \
     "$CONFIG_TEMPLATE" > "$CONFIG_OUTPUT"
 
-echo "DEBUG: Running sed on flake-template.nix"
 sed -e "s|HOSTNAME|$HOSTNAME|g" \
     -e "s|TIMEZONE|$TIMEZONE|g" \
     -e "s|USERNAME|$USERNAME|g" \
     -e "s|PASSWORD|$PASSWORD|g" \
     "$FLAKE_TEMPLATE" > "$FLAKE_OUTPUT"
 
-echo "DEBUG: Running sed on home-template.nix"
 sed -e "s|HOSTNAME|$HOSTNAME|g" \
     -e "s|TIMEZONE|$TIMEZONE|g" \
     -e "s|USERNAME|$USERNAME|g" \
     -e "s|PASSWORD|$PASSWORD|g" \
     "$HOME_TEMPLATE" > "$HOME_OUTPUT"
-
-# Write generated configs to debug files for inspection
-if [ -f ./configuration.nix ]; then
-    cat ./configuration.nix > ./debug-config.txt
-    echo "DEBUG: configuration.nix written to ./debug-config.txt"
-else
-    echo "DEBUG: ERROR - ./configuration.nix does not exist"
-fi
-
-# Write flake to file for inspection
-if [ -f ./flake.nix ]; then
-    cat ./flake.nix > ./debug-flake.txt
-    echo "DEBUG: flake.nix written to ./debug-flake.txt"
-else
-    echo "DEBUG: ERROR - ./flake.nix does not exist"
-fi
-
-echo "DEBUG: Checking files exist in /mnt/etc/nixos:"
-sudo ls -la /mnt/etc/nixos/ 2>&1 || echo "Directory does not exist"
 
 sudo cp "$CONFIG_OUTPUT" /mnt/etc/nixos/configuration.nix
 sudo cp "$FLAKE_OUTPUT" /mnt/etc/nixos/flake.nix

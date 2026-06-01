@@ -6,7 +6,7 @@
     settings = {
       spawn-at-startup = [
         {
-          argv = [ "noctalia-shell" ];
+          argv = [ "${inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/noctalia-shell" ];
         }
       ];
 

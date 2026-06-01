@@ -33,7 +33,7 @@
       ];
 
       layout = {
-        background-color = "transparent";
+        background-color = "#1e1e2e";
       };
 
       overview = {

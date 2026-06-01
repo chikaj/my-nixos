@@ -20,6 +20,9 @@
     wtype
     xdg-desktop-portal-gtk
 
+    # File manager
+    yazi
+
     # Fonts
     nerd-fonts.jetbrains-mono
     nerd-fonts.fira-code

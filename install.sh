@@ -101,7 +101,7 @@ HAS_NVIDIA=$(echo "$HAS_NVIDIA" | tr -d '\n')
 sudo nixos-generate-config --root /mnt --no-filesystems
 
 # === COPY REPO TO TARGET ===
-sudo rsync -a --exclude='.git' --exclude='.DS_Store' ./ /mnt/etc/nixos/
+sudo rsync -a --exclude='.DS_Store' ./ /mnt/etc/nixos/
 
 # === CREATE HOST CONFIG ===
 sudo mkdir -p "/mnt/etc/nixos/hosts/$HOSTNAME"
@@ -209,5 +209,5 @@ echo "To save this host config to the repo, run on the installed system:"
 echo "  cd /etc/nixos"
 echo "  git add hosts/$HOSTNAME/ disks/$HOSTNAME.nix"
 echo "  git commit -m 'add $HOSTNAME configuration'"
-echo "  git remote add origin https://github.com/<your-username>/my-nixos.git  # change to your fork"
+echo "  # If the remote isn't set: git remote add origin https://github.com/<your-username>/my-nixos.git"
 echo "  git push"

@@ -47,7 +47,12 @@
    reboot
    ```
 
-8. Save the new host config to the repo:
+8. On first login, change your password:
+   ```bash
+   passwd
+   ```
+
+9. Save the new host config to the repo:
    ```bash
    cd /etc/nixos
    git add hosts/<hostname>/ disks/<hostname>.nix

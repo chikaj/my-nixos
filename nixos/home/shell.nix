@@ -1,5 +1,27 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
+let
+  superfile-v15 = pkgs.buildGoModule {
+    pname = "superfile";
+    version = "1.5.0";
+
+    src = pkgs.fetchFromGitHub {
+      owner = "yorukot";
+      repo = "superfile";
+      rev = "v1.5.0";
+      hash = "sha256-uzlPc4F9FkuXVmE8zYUPs91f1e6Jje/YayfuzUzsSL8=";
+    };
+
+    vendorHash = "";
+
+    nativeBuildInputs = [ pkgs.exiftool ];
+
+    ldflags = [
+      "-s"
+      "-w"
+    ];
+  };
+in
 {
   programs.ghostty = {
     enable = true;
@@ -48,6 +70,7 @@
 
   programs.superfile = {
     enable = true;
+    package = superfile-v15;
     settings = {
       theme = "catppuccin-frappe";
     };

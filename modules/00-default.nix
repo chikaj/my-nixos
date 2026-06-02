@@ -1,7 +1,11 @@
-{ ... }:
+{ pkgs, ... }:
 
 {
   nixpkgs.config.allowUnfree = true;
+
+  environment.systemPackages = with pkgs; [
+    git  # noctuaria plugins need git in system PATH for QML Process
+  ];
 
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];

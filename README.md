@@ -68,6 +68,52 @@
    Changes to host-specific configs (`hosts/<hostname>/`) apply only to that
    machine.
 
+10. To add new software, for example the Vivaldi browser:
+
+    First, generate an SSH key and add it to GitHub if you haven't already:
+
+    ```bash
+    ssh-keygen -t ed25519 -C "your@email.com"
+    cat ~/.ssh/id_ed25519.pub
+    # Add the key at https://github.com/settings/keys
+    ```
+
+    Create a new module in `home/`:
+
+    ```bash
+    cat > /etc/nixos/home/vivaldi.nix << 'EOF'
+    { pkgs, ... }:
+
+    {
+      home.packages = with pkgs; [
+        vivaldi
+        vivaldi-ffmpeg-codecs
+      ];
+    }
+    EOF
+    ```
+
+    Add it to the imports in `home/default.nix`:
+
+    ```bash
+    # Edit /etc/nixos/home/default.nix and add ./vivaldi.nix to the imports list
+    ```
+
+    Stage the new files and rebuild with `--impure` to test without committing:
+
+    ```bash
+    cd /etc/nixos
+    sudo git add home/vivaldi.nix home/default.nix
+    sudo nixos-rebuild switch --impure
+    ```
+
+    Once it works, commit and push:
+
+    ```bash
+    sudo git commit -m "add vivaldi browser"
+    sudo git push
+    ```
+
 ### What Gets Installed
 
 **Desktop Environment:**

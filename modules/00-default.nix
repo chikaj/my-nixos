@@ -1,14 +1,6 @@
 { ... }:
 
 {
-  imports = [
-    ./01-user.nix
-    ./02-hardware.nix
-    ./03-services.nix
-    ./04-wm.nix
-    ./05-boot.nix
-  ];
-
   nixpkgs.config.allowUnfree = true;
 
   nix.settings = {
@@ -22,8 +14,6 @@
       "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
     ];
   };
-
-  time.timeZone = "TIMEZONE";
 
   system.stateVersion = "26.05";
 }

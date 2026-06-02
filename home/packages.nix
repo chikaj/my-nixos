@@ -29,21 +29,9 @@
     nerd-fonts.caskaydia-mono
 
     # Container management
-    # Include the original package for its .desktop file (launcher integration);
-    # the wrapper below shadows its bin/ in PATH with the OZONE_WL=1 fix.
-    (pkgs.symlinkJoin {
-      name = "podman-desktop-wrapped";
-      paths = [
-        pkgs.podman-desktop
-        (pkgs.writeShellScriptBin "podman-desktop" ''
-          export NIXOS_OZONE_WL=1
-          # ELECTRON_OZONE_PLATFORM_HINT is the native Electron var for Wayland;
-          # NIXOS_OZONE_WL is nixpkgs-specific and doesn't reach bundled runtimes.
-          export ELECTRON_OZONE_PLATFORM_HINT=auto
-          exec ${pkgs.podman-desktop}/bin/podman-desktop "$@"
-        '')
-      ];
-    })
+    # Wayland env vars are set globally in niri.nix (NIXOS_OZONE_WL,
+    # ELECTRON_OZONE_PLATFORM_HINT), so no wrapper needed here.
+    pkgs.podman-desktop
     docker-compose
     podman-compose
 

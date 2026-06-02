@@ -62,41 +62,11 @@
     file-roller
     thunar-archive-plugin
     zathura
-    flameshot
     qalculate-gtk
     font-manager
     blueman
 
-    # GIS
-    (pkgs.qgis.override {
-      withGrass = true;
-      withServer = true;
-    })
-
     # Version control
     jujutsu
   ];
-
-  # Flameshot on Wayland needs UseGrimAdapter to avoid the deprecated DBus protocol
-  xdg.configFile."flameshot/flameshot.ini" = {
-    force = true; # override existing file if flameshot already created it
-    text = ''
-      [General]
-      useGrimAdapter=true
-    '';
-  };
-
-  # Opencode global config — per-project opencode.json in each repo overrides this.
-  # Run `/connect` in the TUI to set up a provider (or edit providers here directly).
-  xdg.configFile."opencode/opencode.json".text = ''
-    {
-      "$schema": "https://opencode.ai/config.json"
-    }
-  '';
-
-  xdg.configFile."opencode/tui.json".text = ''
-    {
-      "$schema": "https://opencode.ai/tui.json"
-    }
-  '';
 }

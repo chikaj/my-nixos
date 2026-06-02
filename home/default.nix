@@ -6,6 +6,10 @@
     ./noctalia.nix
     ./shell.nix
     ./editor.nix
+    ./flameshot.nix
+    ./qgis.nix
+    ./opencode.nix
+    ./vivaldi.nix
     ./packages.nix
   ];
 

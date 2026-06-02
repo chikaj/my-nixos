@@ -84,55 +84,10 @@
 9. To add new software that you want on **every** machine, for example the
     Vivaldi browser, create a new module in `home/`:
 
+    Vivaldi is already configured in `home/vivaldi.nix` — it's imported by
+    default. No extra setup needed.
+
     For software that should only be on one machine, see step 10 instead.
-
-    ```bash
-    cat > /etc/nixos/home/vivaldi.nix << 'EOF'
-    { pkgs, ... }:
-
-    {
-      home.packages = with pkgs; [
-        vivaldi
-        vivaldi-ffmpeg-codecs
-      ];
-
-      xdg.mimeApps.enable = true;
-      xdg.mimeApps.defaultApplications = {
-        "text/html" = "vivaldi.desktop";
-        "x-scheme-handler/http" = "vivaldi.desktop";
-        "x-scheme-handler/https" = "vivaldi.desktop";
-        "x-scheme-handler/about" = "vivaldi.desktop";
-        "x-scheme-handler/unknown" = "vivaldi.desktop";
-        "application/pdf" = "vivaldi.desktop";
-      };
-
-      home.sessionVariables = {
-        NIXOS_OZONE_WL = "1";
-      };
-    }
-    EOF
-    ```
-
-    Add it to the imports in `home/default.nix`:
-
-    ```bash
-    # Edit /etc/nixos/home/default.nix and add ./vivaldi.nix to the imports list
-    ```
-
-    Stage the new files and rebuild with `--impure` to test without committing:
-
-    ```bash
-    cd /etc/nixos
-    sudo git add home/vivaldi.nix home/default.nix
-    sudo nixos-rebuild switch --impure
-    ```
-
-    Once it works, commit and push:
-
-    ```bash
-    sudo git commit -m "add vivaldi browser"
-    sudo git push
-    ```
 
 10. To add software for a **single** machine (not shared), edit
     `machine-specific.nix` in that machine's host directory:

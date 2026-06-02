@@ -41,9 +41,6 @@
     # GUI file manager
     thunar
 
-    # AI coding agent
-    (pkgs.callPackage ../pkgs/opencode { })
-
     # CLI utilities
     fastfetch
     bat

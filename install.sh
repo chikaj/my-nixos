@@ -190,6 +190,7 @@ fi
 
 # Save disko config for future reinstalls
 sudo cp ./disks/_tmp.nix "/mnt/etc/nixos/disks/$HOSTNAME.nix"
+sudo rm /mnt/etc/nixos/disks/_tmp.nix
 rm ./disks/_tmp.nix
 
 echo "Configs written to /mnt/etc/nixos/"

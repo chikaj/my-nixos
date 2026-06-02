@@ -1,2 +1,5 @@
 # macOS
 .DS_Store
+
+# Temporary disko config
+disks/_tmp.nix

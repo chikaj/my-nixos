@@ -32,7 +32,9 @@
       forEachHost = f:
         builtins.mapAttrs
           (name: _: f name)
-          (builtins.readDir ./hosts);
+          (builtins.filterAttrs
+            (name: type: type == "directory")
+            (builtins.readDir ./hosts));
     in {
       nixosConfigurations = forEachHost (hostname:
         nixpkgs.lib.nixosSystem {

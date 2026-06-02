@@ -40,15 +40,18 @@
    - Generate hardware configuration
    - Copy the repo to `/mnt/etc/nixos/` (the installed system's config)
    - Create `hosts/<hostname>/default.nix` with per-machine values
-   - Remove `initialPassword` from the config after install (safe to commit)
+   - Save a copy of the disk layout as `disks/<hostname>.nix`
    - Run `nixos-install --flake /mnt/etc/nixos#<hostname>`
 
-7. Reboot and remove the USB:
+7. If you chose to generate an SSH key, it will be printed during install.
+   Copy it to GitHub at https://github.com/settings/keys before rebooting.
+
+8. Reboot and remove the USB:
    ```bash
    reboot
    ```
 
-8. Save the new host config to the repo:
+9. Save the new host config to the repo:
    ```bash
    cd /etc/nixos
    git add hosts/<hostname>/ disks/<hostname>.nix
@@ -57,7 +60,7 @@
    git push
    ```
 
-9. After that, update all machines by pulling and rebuilding:
+10. After that, update all machines by pulling and rebuilding:
 
    ```bash
    cd /etc/nixos && git pull
@@ -68,9 +71,10 @@
    Changes to host-specific configs (`hosts/<hostname>/`) apply only to that
    machine.
 
-10. To add new software, for example the Vivaldi browser:
+11. To add new software, for example the Vivaldi browser:
 
-    First, generate an SSH key and add it to GitHub if you haven't already:
+    If you didn't generate an SSH key during install, or didn't copy it to
+    GitHub, do that now:
 
     ```bash
     ssh-keygen -t ed25519 -C "your@email.com"

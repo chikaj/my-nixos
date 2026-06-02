@@ -105,6 +105,14 @@ if [ "$HAS_SSH" = "y" ] || [ "$HAS_SSH" = "Y" ]; then
     ssh-keygen -t ed25519 -C "$SSH_EMAIL" -f /tmp/id_ed25519 -N "" 2>/dev/null
 fi
 
+read -p "Set up GitHub access token to avoid API rate limiting? (y/N): " HAS_TOKEN
+HAS_TOKEN=$(echo "$HAS_TOKEN" | tr -d '\n')
+if [ "$HAS_TOKEN" = "y" ] || [ "$HAS_TOKEN" = "Y" ]; then
+    read -s -p "Enter GitHub access token (no extra permissions needed): " GH_TOKEN
+    echo
+    GH_TOKEN=$(echo "$GH_TOKEN" | tr -d '\n')
+fi
+
 # === GENERATE HARDWARE CONFIG ===
 sudo nixos-generate-config --root /mnt --no-filesystems
 
@@ -243,6 +251,16 @@ if [ "$HAS_SSH" = "y" ] || [ "$HAS_SSH" = "Y" ]; then
     sudo nixos-enter --root /mnt -c "chown -R $USERNAME: /home/$USERNAME/.ssh && chmod 600 /home/$USERNAME/.ssh/id_ed25519 && chmod 644 /home/$USERNAME/.ssh/id_ed25519.pub" 2>/dev/null || true
     sudo git -C /mnt/etc/nixos remote set-url origin git@github.com:chikaj/my-nixos.git
     rm -f /tmp/id_ed25519 /tmp/id_ed25519.pub
+fi
+
+# Deploy GitHub access token
+if [ "$HAS_TOKEN" = "y" ] || [ "$HAS_TOKEN" = "Y" ] && [ -n "$GH_TOKEN" ]; then
+    sudo mkdir -p "/mnt/home/$USERNAME/.config/nix"
+    sudo tee "/mnt/home/$USERNAME/.config/nix/nix.conf" > /dev/null << EOF
+access-tokens = github.com=$GH_TOKEN
+EOF
+    sudo nixos-enter --root /mnt -c "chown -R $USERNAME: /home/$USERNAME/.config" 2>/dev/null || true
+    unset GH_TOKEN
 fi
 
 echo ""

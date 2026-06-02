@@ -30,5 +30,8 @@
 
     # Container management
     podman-desktop
+
+    # Developer environments
+    devenv
   ];
 }

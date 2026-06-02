@@ -29,7 +29,12 @@
     nerd-fonts.caskaydia-mono
 
     # Container management
-    podman-desktop
+    (pkgs.writeShellScriptBin "podman-desktop" ''
+      export NIXOS_OZONE_WL=1
+      exec ${pkgs.podman-desktop}/bin/podman-desktop "$@"
+    '')
+    docker-compose
+    podman-compose
 
     # Developer environments
     devenv
@@ -59,5 +64,8 @@
     qalculate-gtk
     font-manager
     blueman
+
+    # Version control
+    jujutsu
   ];
 }

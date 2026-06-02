@@ -40,7 +40,7 @@
    - Generate hardware configuration
    - Copy the repo to `/mnt/etc/nixos/` (the installed system's config)
    - Create `hosts/<hostname>/default.nix` with per-machine values
-   - Save a copy of the disk layout as `disks/<hostname>.nix`
+   - Create `disks/<hostname>.nix` with the disk layout
    - Run `nixos-install --flake /mnt/etc/nixos#<hostname>`
 
 7. If you chose to generate an SSH key, it will be printed during install.
@@ -93,6 +93,20 @@
         vivaldi
         vivaldi-ffmpeg-codecs
       ];
+
+      xdg.mimeApps.enable = true;
+      xdg.mimeApps.defaultApplications = {
+        "text/html" = "vivaldi.desktop";
+        "x-scheme-handler/http" = "vivaldi.desktop";
+        "x-scheme-handler/https" = "vivaldi.desktop";
+        "x-scheme-handler/about" = "vivaldi.desktop";
+        "x-scheme-handler/unknown" = "vivaldi.desktop";
+        "application/pdf" = "vivaldi.desktop";
+      };
+
+      home.sessionVariables = {
+        NIXOS_OZONE_WL = "1";
+      };
     }
     EOF
     ```

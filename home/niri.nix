@@ -42,6 +42,7 @@ in
       environment = {
         TERMINAL = "ghostty";
         NIXOS_OZONE_WL = "1";
+        QT_QPA_PLATFORM = "wayland";
         ELECTRON_OZONE_PLATFORM_HINT = "auto";
       };
 
@@ -249,6 +250,7 @@ in
         "Mod+W".action."toggle-column-tabbed-display" = {};
 
         "Print".action."screenshot" = {};
+        "Shift+Print".action.spawn = [ "flameshot" "gui" ];
         "Ctrl+Print".action."screenshot-screen" = {};
         "Alt+Print".action."screenshot-window" = {};
 

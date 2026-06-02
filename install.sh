@@ -129,7 +129,7 @@ sudo tee "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix" > /dev/null << 'NIXEOF'
   users.users.USERNAME = {
     isNormalUser = true;
     description = "Desktop Wizard";
-    extraGroups = [ "wheel" "networkmanager" ];
+    extraGroups = [ "wheel" "networkmanager" "docker" ];
     shell = pkgs.nushell;
     initialPassword = "PASSWORD";
   };
@@ -179,6 +179,7 @@ NVIDIA_LINE
     ../../modules/03-services.nix
     ../../modules/04-wm.nix
     ../../modules/05-boot.nix
+    ../../modules/06-containers.nix
     ./hardware.nix
     ./machine-specific.nix
   ];

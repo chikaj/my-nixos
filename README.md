@@ -180,6 +180,7 @@
 - PipeWire (audio)
 - XDG Portal (file dialogs)
 - Power Profiles Daemon + UPower (power management)
+- Docker + Podman (container runtimes)
 
 **Graphics:**
 - NVIDIA drivers (if NVIDIA GPU detected)
@@ -201,7 +202,8 @@
 │   ├── 02-nvidia.nix
 │   ├── 03-services.nix
 │   ├── 04-wm.nix
-│   └── 05-boot.nix
+│   ├── 05-boot.nix
+│   └── 06-containers.nix
 ├── home/              # Shared user configuration — applies to every machine
 │   ├── default.nix
 │   ├── niri.nix

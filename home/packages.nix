@@ -27,5 +27,8 @@
     nerd-fonts.meslo-lg
     nerd-fonts.caskaydia-cove
     nerd-fonts.caskaydia-mono
+
+    # Container management
+    podman-desktop
   ];
 }

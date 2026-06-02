@@ -117,6 +117,9 @@ sudo mkdir -p "/mnt/etc/nixos/hosts/$HOSTNAME"
 sudo mv /mnt/etc/nixos/hardware-configuration.nix "/mnt/etc/nixos/hosts/$HOSTNAME/hardware.nix"
 
 sudo tee "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix" > /dev/null << 'NIXEOF'
+# Per-machine system config (hostname, timezone, user, filesystems, imports).
+# Shared system config lives in ../../modules/, user config in ../../home/.
+# Packages unique to this machine go in ./machine-specific.nix.
 { lib, pkgs, ... }:
 
 {
@@ -177,6 +180,19 @@ NVIDIA_LINE
     ../../modules/04-wm.nix
     ../../modules/05-boot.nix
     ./hardware.nix
+    ./machine-specific.nix
+  ];
+}
+NIXEOF
+
+sudo tee "/mnt/etc/nixos/hosts/$HOSTNAME/machine-specific.nix" > /dev/null << 'NIXEOF'
+# Packages here are installed ONLY on this machine.
+# Shared packages are in ../../home/packages.nix or any ../../home/*.nix.
+{ pkgs, ... }:
+
+{
+  home.packages = with pkgs; [
+    # machine-specific packages go here
   ];
 }
 NIXEOF

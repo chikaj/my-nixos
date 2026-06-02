@@ -54,6 +54,12 @@
     };
   };
 
+  home.packages = with pkgs; [
+    (pkgs.writeShellScriptBin "spf" ''
+      exec ${pkgs.superfile}/bin/superfile "$@"
+    '')
+  ];
+
   programs.zsh = {
     enable = true;
     shellAliases = {};

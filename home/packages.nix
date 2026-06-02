@@ -20,11 +20,6 @@
     wtype
     xdg-desktop-portal-gtk
 
-    # Shortcut commands
-    (pkgs.writeShellScriptBin "spf" ''
-      exec ${pkgs.superfile}/bin/superfile "$@"
-    '')
-
     # Fonts
     nerd-fonts.jetbrains-mono
     nerd-fonts.fira-code

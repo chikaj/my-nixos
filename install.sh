@@ -197,12 +197,16 @@ NIXEOF
 sudo tee "/mnt/etc/nixos/hosts/$HOSTNAME/machine-specific.nix" > /dev/null << 'NIXEOF'
 # Packages here are installed ONLY on this machine.
 # Shared packages are in ../../home/packages.nix or any ../../home/*.nix.
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 {
   home.packages = with pkgs; [
     # machine-specific packages go here
   ];
+
+  # Disable shared features that this machine doesn't need:
+  # hardware.bluetooth.enable = lib.mkForce false;
+  # services.blueman.enable = lib.mkForce false;
 }
 NIXEOF
 

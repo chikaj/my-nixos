@@ -114,24 +114,13 @@
 └── install.sh         # Generates host configs, runs disko + nixos-install
 ```
 
-### Post-Installation
+10. After that, update all machines by pulling and rebuilding:
 
-After first boot, save the new host config to the repo:
+    ```bash
+    cd /etc/nixos && git pull
+    sudo nixos-rebuild switch
+    ```
 
-```bash
-cd /etc/nixos
-git add hosts/<hostname>/ disks/<hostname>.nix
-git commit -m "add <hostname> configuration"
-git remote add origin https://github.com/<your-username>/my-nixos.git  # change to your fork
-git push
-```
-
-After that, update all machines by pulling and rebuilding:
-
-```bash
-cd /etc/nixos && git pull
-sudo nixos-rebuild switch
-```
-
-Changes to shared configs (modules/, home/) apply to all machines. Changes to
-host-specific configs (hosts/<hostname>/) apply only to that machine.
+    Changes to shared configs (`modules/`, `home/`) apply to all machines.
+    Changes to host-specific configs (`hosts/<hostname>/`) apply only to that
+    machine.

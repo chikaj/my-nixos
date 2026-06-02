@@ -2,4 +2,4 @@
 .DS_Store
 
 # Temporary disko config
-disks/_tmp.nix
+disko-config.tmp.nix

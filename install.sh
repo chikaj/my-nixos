@@ -11,11 +11,11 @@ if [ -z "$DEVICENAME" ]; then
     exit 1
 fi
 
-sed "s|/dev/mydisk|$DEVICENAME|g" ./disks/default.nix > ./disks/_tmp.nix
+sed "s|/dev/mydisk|$DEVICENAME|g" ./disko-config.nix > ./disko-config.tmp.nix
 
 sudo nix --extra-experimental-features 'nix-command flakes' \
   run github:nix-community/disko/latest -- \
-  --mode destroy,format,mount ./disks/_tmp.nix
+  --mode destroy,format,mount ./disko-config.tmp.nix
 
 echo "Disk partitioning complete. Proceeding with NixOS install."
 
@@ -196,7 +196,7 @@ else
     sudo sed -i "/NVIDIA_LINE/d" "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix"
 fi
 
-rm ./disks/_tmp.nix
+rm ./disko-config.tmp.nix
 
 echo "Configs written to /mnt/etc/nixos/"
 echo "Host config: hosts/$HOSTNAME/default.nix"

@@ -182,7 +182,6 @@
 │   ├── shell.nix
 │   ├── editor.nix
 │   └── packages.nix
-├── disks/             # Disko disk layout template (device placeholder)
-│   └── default.nix
+├── disko-config.nix   # Disko disk layout template (device placeholder)
 └── install.sh         # Generates host configs, runs disko + nixos-install
 ```

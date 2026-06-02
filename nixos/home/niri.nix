@@ -54,7 +54,7 @@ in
 
         "Super+Alt+S" = {
           allow-when-locked = true;
-          hotkey-overlay-title = null;
+          hotkey-overlay = { hidden = true; };
           action."spawn-sh" = "pkill orca || exec orca";
         };
 

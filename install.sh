@@ -169,6 +169,7 @@ sudo tee "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix" > /dev/null << 'NIXEOF'
     "/boot" = {
       device = "/dev/disk/by-uuid/BOOTUUID";
       fsType = "vfat";
+      options = [ "fmask=0077" "dmask=0077" ];
     };
   };
 

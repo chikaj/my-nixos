@@ -67,9 +67,9 @@
    sudo nixos-rebuild switch
    ```
 
-   Changes to shared configs (`modules/`, `home/`) apply to all machines.
-   Changes to host-specific configs (`hosts/<hostname>/`) apply only to that
-   machine.
+   Changes to shared configs (`modules/`, `home/`) apply to all machines —
+   other machines must `git pull` before rebuilding. Changes to host-specific
+   configs (`hosts/<hostname>/`) apply only to that machine.
 
 11. To add new software, for example the Vivaldi browser:
 

@@ -51,10 +51,10 @@
         if ($env.SPF_LAST_DIR? | is-not-empty) and ($env.SPF_LAST_DIR | path exists) {
           let content = (open $env.SPF_LAST_DIR)
           let path = ($content
-            | str replace 'cd ' ''
+            | str replace 'cd ' ""
             | str trim
-            | str replace --all "'" ''
-            | str replace --all '"' ''
+            | str replace --all "'" ""
+            | str replace --all '"' ""
             | str trim)
           cd $path
         }

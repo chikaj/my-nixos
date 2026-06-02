@@ -197,10 +197,10 @@ NIXEOF
 sudo tee "/mnt/etc/nixos/hosts/$HOSTNAME/machine-specific.nix" > /dev/null << 'NIXEOF'
 # Packages here are installed ONLY on this machine.
 # Shared packages are in ../../home/packages.nix or any ../../home/*.nix.
-{ pkgs, lib, ... }:
+{ config, pkgs, lib, ... }:
 
 {
-  home.packages = with pkgs; [
+  home-manager.users.USERNAME.home.packages = with pkgs; [
     # machine-specific packages go here
   ];
 
@@ -217,6 +217,7 @@ sudo sed -i "s|USERNAME|$USERNAME|g" "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix
 sudo sed -i "s|PASSWORD|$PASSWORD|g" "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix"
 sudo sed -i "s|BOOTUUID|$BOOTUUID|g" "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix"
 sudo sed -i "s|CRYPTUUID|$CRYPTUUID|g" "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix"
+sudo sed -i "s|USERNAME|$USERNAME|g" "/mnt/etc/nixos/hosts/$HOSTNAME/machine-specific.nix"
 
 # Handle NVIDIA import
 if [ "$HAS_NVIDIA" = "y" ] || [ "$HAS_NVIDIA" = "Y" ]; then

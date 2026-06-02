@@ -49,7 +49,7 @@ for subvol in root boot nix home persist log; do
     sudo mount -o subvol="$subvol",compress=zstd,noatime /dev/mapper/cryptroot "$target"
 done
 
-sudo mount -t vfat "$EFI" /mnt/efi
+sudo mount -t vfat -o fmask=0077,dmask=0077 "$EFI" /mnt/efi
 
 # === DETECT UUIDs ===
 BOOTUUID=$(sudo blkid -s UUID -o value "$EFI" 2>/dev/null || echo "")
@@ -174,6 +174,7 @@ sudo tee "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix" > /dev/null << 'NIXEOF'
     "/efi" = {
       device = "/dev/disk/by-uuid/BOOTUUID";
       fsType = "vfat";
+      options = [ "fmask=0077" "dmask=0077" ];
     };
   };
 

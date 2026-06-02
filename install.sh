@@ -210,6 +210,9 @@ sudo nixos-install --flake /mnt/etc/nixos#"$HOSTNAME" --no-root-passwd
 # Remove initialPassword from host config (safe to commit after this)
 sudo sed -i '/initialPassword/d' "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix"
 
+# Fix .git ownership so the user can push from the installed system
+sudo nixos-enter --root /mnt -c "chown -R $USERNAME: /etc/nixos/.git" 2>/dev/null || true
+
 echo ""
 echo "Installation complete!"
 echo ""

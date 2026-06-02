@@ -97,6 +97,19 @@ fi
 read -p "Does this machine have an NVIDIA GPU? (y/N): " HAS_NVIDIA
 HAS_NVIDIA=$(echo "$HAS_NVIDIA" | tr -d '\n')
 
+read -p "Generate SSH key for GitHub? (y/N): " HAS_SSH
+HAS_SSH=$(echo "$HAS_SSH" | tr -d '\n')
+if [ "$HAS_SSH" = "y" ] || [ "$HAS_SSH" = "Y" ]; then
+    read -p "Enter email for SSH key: " SSH_EMAIL
+    SSH_EMAIL=$(echo "$SSH_EMAIL" | tr -d '\n')
+    ssh-keygen -t ed25519 -C "$SSH_EMAIL" -f /tmp/id_ed25519 -N "" 2>/dev/null
+    echo ""
+    echo "=== PUBLIC SSH KEY (add this to GitHub: https://github.com/settings/keys) ==="
+    cat /tmp/id_ed25519.pub
+    echo "============================================================================="
+    echo ""
+fi
+
 # === GENERATE HARDWARE CONFIG ===
 sudo nixos-generate-config --root /mnt --no-filesystems
 
@@ -213,6 +226,16 @@ sudo sed -i '/initialPassword/d' "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix"
 # Fix .git ownership so the user can push from the installed system
 sudo nixos-enter --root /mnt -c "chown -R $USERNAME: /etc/nixos/.git" 2>/dev/null || true
 
+# Deploy SSH key and switch remote to SSH
+if [ "$HAS_SSH" = "y" ] || [ "$HAS_SSH" = "Y" ]; then
+    sudo mkdir -p "/mnt/home/$USERNAME/.ssh"
+    sudo cp /tmp/id_ed25519 "/mnt/home/$USERNAME/.ssh/"
+    sudo cp /tmp/id_ed25519.pub "/mnt/home/$USERNAME/.ssh/"
+    sudo nixos-enter --root /mnt -c "chown -R $USERNAME: /home/$USERNAME/.ssh && chmod 600 /home/$USERNAME/.ssh/id_ed25519 && chmod 644 /home/$USERNAME/.ssh/id_ed25519.pub" 2>/dev/null || true
+    sudo git -C /mnt/etc/nixos remote set-url origin git@github.com:chikaj/my-nixos.git
+    rm -f /tmp/id_ed25519 /tmp/id_ed25519.pub
+fi
+
 echo ""
 echo "Installation complete!"
 echo ""
@@ -220,5 +243,4 @@ echo "To save this host config to the repo, run on the installed system:"
 echo "  cd /etc/nixos"
 echo "  git add hosts/$HOSTNAME/ disks/$HOSTNAME.nix"
 echo "  git commit -m 'add $HOSTNAME configuration'"
-echo "  # If the remote isn't set: git remote add origin https://github.com/<your-username>/my-nixos.git"
 echo "  git push"

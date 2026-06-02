@@ -32,6 +32,7 @@
    - Enter username
    - Enter user password (and confirm)
    - Whether the machine has an NVIDIA GPU
+   - Whether to generate an SSH key (and your email if yes)
 
 6. The script will:
    - Partition and encrypt the disk with Disko

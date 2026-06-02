@@ -61,6 +61,16 @@
    git push
    ```
 
+10. After that, update all machines by pulling and rebuilding:
+
+    ```bash
+    cd /etc/nixos && git pull
+    sudo nixos-rebuild switch
+    ```
+
+    Changes to shared configs (`modules/`, `home/`) apply to all machines.
+    Changes to host-specific configs (`hosts/<hostname>/`) apply only to that
+    machine.
 
 ### What Gets Installed
 
@@ -114,14 +124,3 @@
 │   └── <hostname>.nix # per-machine copy (saved by install.sh)
 └── install.sh         # Generates host configs, runs disko + nixos-install
 ```
-
-10. After that, update all machines by pulling and rebuilding:
-
-    ```bash
-    cd /etc/nixos && git pull
-    sudo nixos-rebuild switch
-    ```
-
-    Changes to shared configs (`modules/`, `home/`) apply to all machines.
-    Changes to host-specific configs (`hosts/<hostname>/`) apply only to that
-    machine.

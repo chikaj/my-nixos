@@ -33,5 +33,8 @@
 
     # Developer environments
     devenv
+
+    # GUI file manager
+    thunar
   ];
 }

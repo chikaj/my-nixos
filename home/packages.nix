@@ -50,5 +50,15 @@
     pavucontrol
     swayimg
     mpv
+
+    # GUI utilities
+    file-roller
+    thunar-archive-plugin
+    zathura
+    zathura_pdf_mupdf
+    flameshot
+    qalculate-gtk
+    font-manager
+    blueman
   ];
 }

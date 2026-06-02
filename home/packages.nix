@@ -84,10 +84,13 @@
   ];
 
   # Flameshot on Wayland needs UseGrimAdapter to avoid the deprecated DBus protocol
-  xdg.configFile."flameshot/flameshot.ini".text = ''
-    [General]
-    useGrimAdapter=true
-  '';
+  xdg.configFile."flameshot/flameshot.ini" = {
+    force = true; # override existing file if flameshot already created it
+    text = ''
+      [General]
+      useGrimAdapter=true
+    '';
+  };
 
   # Opencode global config — per-project opencode.json in each repo overrides this.
   # Run `/connect` in the TUI to set up a provider (or edit providers here directly).

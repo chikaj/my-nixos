@@ -28,11 +28,12 @@
   };
   outputs = inputs@{ self, nixpkgs, home-manager, niri-flake, noctalia, ... }:
     let
+      lib = nixpkgs.lib;
       system = "x86_64-linux";
       forEachHost = f:
-        builtins.mapAttrs
+        lib.mapAttrs
           (name: _: f name)
-          (builtins.filterAttrs
+          (lib.filterAttrs
             (name: type: type == "directory")
             (builtins.readDir ./hosts));
     in {

@@ -197,6 +197,13 @@ echo "Host config: hosts/$HOSTNAME/default.nix"
 
 # === LOCK AND INSTALL ===
 sudo nix --extra-experimental-features 'nix-command flakes' flake lock /mnt/etc/nixos
+
+# Commit so the git tree is clean for flake evaluation
+sudo git -C /mnt/etc/nixos add -A
+sudo git -C /mnt/etc/nixos \
+  -c user.name="nixos-install" \
+  -c user.email="nixos@local" \
+  commit -m "generated host config for $HOSTNAME"
 sudo nixos-install --flake /mnt/etc/nixos#"$HOSTNAME" --no-root-passwd
 
 # Remove initialPassword from host config (safe to commit after this)

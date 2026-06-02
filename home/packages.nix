@@ -36,5 +36,19 @@
 
     # GUI file manager
     thunar
+
+    # CLI utilities
+    fastfetch
+    bat
+    eza
+    btop
+    duf
+    dust
+    tldr
+
+    # Media
+    pavucontrol
+    swayimg
+    mpv
   ];
 }

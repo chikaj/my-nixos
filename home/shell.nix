@@ -35,6 +35,8 @@
     configFile.text = ''
       $env.PROMPT_COMMAND = {|| starship_prompt }
       $env.config.buffer_editor = "hx"
+      devenv hook nu | save --force ~/.cache/devenv/hook.nu
+      source ~/.cache/devenv/hook.nu
     '';
   };
 
@@ -65,6 +67,7 @@
     shellAliases = {};
     initContent = ''
       export EDITOR=hx
+      eval "$(devenv hook zsh)"
     '';
   };
 }

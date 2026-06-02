@@ -52,7 +52,7 @@
    cd /etc/nixos
    git add hosts/<hostname>/ disks/<hostname>.nix
    git commit -m "add <hostname> configuration"
-   git remote add origin https://github.com/chikaj/my-nixos.git
+   git remote add origin https://github.com/<your-username>/my-nixos.git  # change to your fork
    git push
    ```
 
@@ -117,7 +117,7 @@ After first boot, save the new host config to the repo:
 cd /etc/nixos
 git add hosts/<hostname>/ disks/<hostname>.nix
 git commit -m "add <hostname> configuration"
-git remote add origin https://github.com/chikaj/my-nixos.git
+git remote add origin https://github.com/<your-username>/my-nixos.git  # change to your fork
 git push
 ```
 

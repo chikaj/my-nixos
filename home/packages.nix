@@ -67,6 +67,12 @@
     font-manager
     blueman
 
+    # GIS
+    (pkgs.qgis.override {
+      withGrass = true;
+      withServer = true;
+    })
+
     # Version control
     jujutsu
   ];

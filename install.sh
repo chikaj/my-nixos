@@ -201,9 +201,6 @@ else
     sudo sed -i "/NVIDIA_LINE/d" "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix"
 fi
 
-# Save disko config for future reinstalls
-sudo cp ./disks/_tmp.nix "/mnt/etc/nixos/disks/$HOSTNAME.nix"
-sudo rm /mnt/etc/nixos/disks/_tmp.nix
 rm ./disks/_tmp.nix
 
 echo "Configs written to /mnt/etc/nixos/"
@@ -241,6 +238,7 @@ echo "Installation complete!"
 echo ""
 echo "To save this host config to the repo, run on the installed system:"
 echo "  cd /etc/nixos"
-echo "  git add hosts/$HOSTNAME/ disks/$HOSTNAME.nix"
-echo "  git commit -m 'add $HOSTNAME configuration'"
+echo "  git add hosts/$HOSTNAME/"
+echo "  git commit --amend -m 'add $HOSTNAME configuration'"
+echo "  # If needed: git remote add origin <your-repo-url>"
 echo "  git push"

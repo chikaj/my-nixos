@@ -40,7 +40,6 @@
    - Generate hardware configuration
    - Copy the repo to `/mnt/etc/nixos/` (the installed system's config)
    - Create `hosts/<hostname>/default.nix` with per-machine values
-   - Create `disks/<hostname>.nix` with the disk layout
    - Run `nixos-install --flake /mnt/etc/nixos#<hostname>`
 
 7. If you chose to generate an SSH key, it will be printed during install.
@@ -51,14 +50,21 @@
    reboot
    ```
 
-9. Save the new host config to the repo:
+9. Save the new host config to the repo.
+   `install.sh` already made an initial commit so the flake could evaluate, but
+   you should commit the host config with a proper message and push:
+
    ```bash
    cd /etc/nixos
-   git add hosts/<hostname>/ disks/<hostname>.nix
-   git commit -m "add <hostname> configuration"
-   # If the remote isn't set: git remote add origin https://github.com/<your-username>/my-nixos.git
+   git add hosts/<hostname>/
+   git commit --amend -m "add <hostname> configuration"
+   # If needed: git remote add origin https://github.com/<your-username>/my-nixos.git
    git push
    ```
+
+   This uses `--amend` to replace the automatic "generated host config" commit
+   with a descriptive message. On future changes, stage your files with
+   `git add` and commit with `git commit -m "what changed"`, then `git push`.
 
 10. After that, update all machines by pulling and rebuilding:
 
@@ -179,8 +185,7 @@
 │   ├── shell.nix
 │   ├── editor.nix
 │   └── packages.nix
-├── disks/             # Disko disk layouts
-│   ├── default.nix    # shared template (single-disk LUKS + Btrfs)
-│   └── <hostname>.nix # per-machine copy (saved by install.sh)
+├── disks/             # Disko disk layout template (device placeholder)
+│   └── default.nix
 └── install.sh         # Generates host configs, runs disko + nixos-install
 ```

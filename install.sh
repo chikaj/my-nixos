@@ -103,11 +103,6 @@ if [ "$HAS_SSH" = "y" ] || [ "$HAS_SSH" = "Y" ]; then
     read -p "Enter email for SSH key: " SSH_EMAIL
     SSH_EMAIL=$(echo "$SSH_EMAIL" | tr -d '\n')
     ssh-keygen -t ed25519 -C "$SSH_EMAIL" -f /tmp/id_ed25519 -N "" 2>/dev/null
-    echo ""
-    echo "=== PUBLIC SSH KEY (add this to GitHub: https://github.com/settings/keys) ==="
-    cat /tmp/id_ed25519.pub
-    echo "============================================================================="
-    echo ""
 fi
 
 # === GENERATE HARDWARE CONFIG ===

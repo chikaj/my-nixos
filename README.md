@@ -42,17 +42,23 @@
    - Create `hosts/<hostname>/default.nix` with per-machine values
    - Run `nixos-install --flake /mnt/etc/nixos#<hostname>`
 
-7. If you chose to generate an SSH key, it will be printed during install.
-   Copy it to GitHub at https://github.com/settings/keys before rebooting.
-
-8. Reboot and remove the USB:
+7. Reboot and remove the USB:
    ```bash
    reboot
    ```
 
-9. Save the new host config to the repo.
+8. Save the new host config to the repo.
    `install.sh` already made an initial commit so the flake could evaluate, but
    you should commit the host config with a proper message and push:
+
+   First, copy your SSH public key to GitHub at
+   https://github.com/settings/keys:
+
+   ```bash
+   cat ~/.ssh/id_ed25519.pub
+   ```
+
+   Then save the config:
 
    ```bash
    cd /etc/nixos
@@ -66,7 +72,7 @@
    with a descriptive message. On future changes, stage your files with
    `git add` and commit with `git commit -m "what changed"`, then `git push`.
 
-10. After that, update all machines by pulling and rebuilding:
+9. After that, update all machines by pulling and rebuilding:
 
    ```bash
    cd /etc/nixos && git pull
@@ -77,16 +83,7 @@
    other machines must `git pull` before rebuilding. Changes to host-specific
    configs (`hosts/<hostname>/`) apply only to that machine.
 
-11. To add new software, for example the Vivaldi browser:
-
-    If you didn't generate an SSH key during install, or didn't copy it to
-    GitHub, do that now:
-
-    ```bash
-    ssh-keygen -t ed25519 -C "your@email.com"
-    cat ~/.ssh/id_ed25519.pub
-    # Add the key at https://github.com/settings/keys
-    ```
+10. To add new software, for example the Vivaldi browser:
 
     Create a new module in `home/`:
 

@@ -35,8 +35,23 @@
     configFile.text = ''
       $env.PROMPT_COMMAND = {|| starship_prompt }
       $env.config.buffer_editor = "hx"
-      # Generate devenv shell hook into a cached script so `source` below always works.
-      # The file is pre-created by home-manager activation (see home.activation below).
+
+      def --env spf [...args] {
+        let state_home = ($env.XDG_STATE_HOME? | default $"($env.HOME)/.local/state")
+        $env.SPF_LAST_DIR = $"($state_home)/superfile/lastdir"
+        ^superfile ...$args
+        if ($env.SPF_LAST_DIR? | is-not-empty) and ($env.SPF_LAST_DIR | path exists) {
+          let content = (open $env.SPF_LAST_DIR)
+          let path = ($content
+            | str replace 'cd ' ''
+            | str trim
+            | str replace --all "'" ''
+            | str replace --all '"' ''
+            | str trim)
+          cd $path
+        }
+      }
+
       mkdir ~/.cache/devenv
       devenv hook nu | save --force ~/.cache/devenv/hook.nu
       source ~/.cache/devenv/hook.nu
@@ -59,18 +74,18 @@
     };
   };
 
-  home.packages = with pkgs; [
-    (pkgs.writeShellScriptBin "spf" ''
-      exec ${pkgs.superfile}/bin/superfile "$@"
-    '')
-  ];
-
   programs.zsh = {
     enable = true;
     shellAliases = {};
     initContent = ''
       export EDITOR=hx
       eval "$(devenv hook zsh)"
+
+      spf() {
+        local f="''${XDG_STATE_HOME:-$HOME/.local/state}/superfile/lastdir"
+        superfile "$@"
+        [[ -f "$f" ]] && cd "$(sed "s/^cd //; s/['\"]//g" "$f")"
+      }
     '';
   };
 

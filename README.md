@@ -58,6 +58,15 @@
    cat ~/.ssh/id_ed25519.pub
    ```
 
+   Optionally, create a GitHub access token at
+   https://github.com/settings/personal-access-tokens/new (no extra permissions
+   needed) and add it to `~/.config/nix/nix.conf` to avoid API rate limiting:
+
+   ```bash
+   mkdir -p ~/.config/nix
+   echo "access-tokens = github.com=<YOUR_TOKEN>" >> ~/.config/nix/nix.conf
+   ```
+
    Then save the config:
 
    ```bash

@@ -183,6 +183,7 @@
 - Zed (modern code editor)
 - Starship (prompt)
 - Superfile (file picker)
+- Opencode (AI coding agent)
 
 **Services:**
 - Greetd + Tuigreet (login manager)
@@ -220,6 +221,9 @@
 │   ├── shell.nix
 │   ├── editor.nix
 │   └── packages.nix
+├── pkgs/              # Nix package expressions for software not in nixpkgs
+│   └── opencode/
+│       └── default.nix
 ├── disko-config.nix   # Disko disk layout template (device placeholder)
 └── install.sh         # Generates host configs, runs disko + nixos-install
 ```
@@ -233,3 +237,41 @@
   Regenerate if hardware changes.
 - **`hosts/<hostname>/machine-specific.nix`** — packages installed only on that
   machine. Anything you don't want on your laptop goes here.
+
+### Opencode
+
+[Opencode](https://opencode.ai) is installed on every machine via a custom
+package expression at `pkgs/opencode/default.nix` (the prebuilt Linux binary
+from GitHub, patched for NixOS). Its config lives at
+`~/.config/opencode/opencode.json`.
+
+**Setting up a provider:**
+
+1. Run `opencode` in a project directory.
+2. Press `/` and type `connect`, then select a provider.
+3. Follow the prompts to add your API key.
+
+Or edit `~/.config/opencode/opencode.json` directly:
+
+```json
+{
+  "provider": {
+    "anthropic": {
+      "options": {
+        "apiKey": "sk-ant-..."
+      }
+    }
+  },
+  "model": "anthropic/claude-sonnet-4-5"
+}
+```
+
+Per-project configs override the global one — just drop an `opencode.json` in
+any project root.
+
+To update the pinned version, change `version` and `hash` in
+`pkgs/opencode/default.nix`.  Get the latest hash with:
+
+```bash
+curl -sL https://github.com/anomalyco/opencode/releases/latest/download/opencode-linux-x64.tar.gz | sha256sum
+```

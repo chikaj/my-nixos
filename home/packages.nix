@@ -29,10 +29,21 @@
     nerd-fonts.caskaydia-mono
 
     # Container management
-    (pkgs.writeShellScriptBin "podman-desktop" ''
-      export NIXOS_OZONE_WL=1
-      exec ${pkgs.podman-desktop}/bin/podman-desktop "$@"
-    '')
+    # Include the original package for its .desktop file (launcher integration);
+    # the wrapper below shadows its bin/ in PATH with the OZONE_WL=1 fix.
+    (pkgs.symlinkJoin {
+      name = "podman-desktop-wrapped";
+      paths = [
+        pkgs.podman-desktop
+        (pkgs.writeShellScriptBin "podman-desktop" ''
+          export NIXOS_OZONE_WL=1
+          # ELECTRON_OZONE_PLATFORM_HINT is the native Electron var for Wayland;
+          # NIXOS_OZONE_WL is nixpkgs-specific and doesn't reach bundled runtimes.
+          export ELECTRON_OZONE_PLATFORM_HINT=auto
+          exec ${pkgs.podman-desktop}/bin/podman-desktop "$@"
+        '')
+      ];
+    })
     docker-compose
     podman-compose
 
@@ -41,6 +52,9 @@
 
     # GUI file manager
     thunar
+
+    # AI coding agent
+    (pkgs.callPackage ../pkgs/opencode { })
 
     # CLI utilities
     fastfetch
@@ -68,4 +82,24 @@
     # Version control
     jujutsu
   ];
+
+  # Flameshot on Wayland needs UseGrimAdapter to avoid the deprecated DBus protocol
+  xdg.configFile."flameshot/flameshot.ini".text = ''
+    [General]
+    useGrimAdapter=true
+  '';
+
+  # Opencode global config — per-project opencode.json in each repo overrides this.
+  # Run `/connect` in the TUI to set up a provider (or edit providers here directly).
+  xdg.configFile."opencode/opencode.json".text = ''
+    {
+      "$schema": "https://opencode.ai/config.json"
+    }
+  '';
+
+  xdg.configFile."opencode/tui.json".text = ''
+    {
+      "$schema": "https://opencode.ai/tui.json"
+    }
+  '';
 }

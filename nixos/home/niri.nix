@@ -49,6 +49,7 @@ in
 
         "Mod+T".action.spawn = [ "ghostty" ];
         "Mod+D".action.spawn = [ noctaliaBin "ipc" "call" "launcher" "toggle" ];
+        "Mod+Space".action.spawn = [ noctaliaBin "ipc" "call" "launcher" "toggle" ];
         "Super+Alt+L".action.spawn = [ "swaylock" ];
 
         "Super+Alt+S" = {

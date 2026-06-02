@@ -2,7 +2,7 @@
 
 {
   home.packages = with pkgs; [
-    (pkgs.callPackage ../pkgs/opencode { })
+    pkgs.opencode
   ];
 
   xdg.configFile."opencode/opencode.json".text = ''

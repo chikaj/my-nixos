@@ -47,12 +47,7 @@
    reboot
    ```
 
-8. On first login, change your password:
-   ```bash
-   passwd
-   ```
-
-9. Save the new host config to the repo:
+8. Save the new host config to the repo:
    ```bash
    cd /etc/nixos
    git add hosts/<hostname>/ disks/<hostname>.nix
@@ -61,16 +56,16 @@
    git push
    ```
 
-10. After that, update all machines by pulling and rebuilding:
+9. After that, update all machines by pulling and rebuilding:
 
-    ```bash
-    cd /etc/nixos && git pull
-    sudo nixos-rebuild switch
-    ```
+   ```bash
+   cd /etc/nixos && git pull
+   sudo nixos-rebuild switch
+   ```
 
-    Changes to shared configs (`modules/`, `home/`) apply to all machines.
-    Changes to host-specific configs (`hosts/<hostname>/`) apply only to that
-    machine.
+   Changes to shared configs (`modules/`, `home/`) apply to all machines.
+   Changes to host-specific configs (`hosts/<hostname>/`) apply only to that
+   machine.
 
 ### What Gets Installed
 

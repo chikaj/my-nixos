@@ -14,7 +14,7 @@
               content = {
                 type = "filesystem";
                 format = "vfat";
-                mountpoint = "/boot";
+                mountpoint = "/efi";
               };
             };
             # LUKS partition with Btrfs subvolumes
@@ -29,6 +29,7 @@
                   type = "btrfs";
                   subvolumes = {
                     root = { mountpoint = "/"; };
+                    boot = { mountpoint = "/boot"; };
                     nix = { mountpoint = "/nix"; };
                     home = { mountpoint = "/home"; };
                     persist = { mountpoint = "/persist"; }; # optional

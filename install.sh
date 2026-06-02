@@ -39,17 +39,17 @@ if ! mount | grep -q "/mnt "; then
     sudo cryptsetup open "$CRYPTROOT" cryptroot
 fi
 
-sudo mkdir -p /mnt/{etc,nix,home,persist,boot}
+sudo mkdir -p /mnt/{etc,nix,home,persist,boot,efi}
 sudo mkdir -p /mnt/{etc/nixos,var/log}
 
-for subvol in root nix home persist log; do
+for subvol in root boot nix home persist log; do
     target="/mnt"
     [ "$subvol" = "log" ] && target="/mnt/var/log"
     [ "$subvol" != "root" ] && [ "$subvol" != "log" ] && target="/mnt/$subvol"
     sudo mount -o subvol="$subvol",compress=zstd,noatime /dev/mapper/cryptroot "$target"
 done
 
-sudo mount -t vfat "$EFI" /mnt/boot
+sudo mount -t vfat "$EFI" /mnt/efi
 
 # === DETECT UUIDs ===
 BOOTUUID=$(sudo blkid -s UUID -o value "$EFI" 2>/dev/null || echo "")
@@ -167,9 +167,13 @@ sudo tee "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix" > /dev/null << 'NIXEOF'
       options = [ "subvol=log" "compress=zstd" "noatime" ];
     };
     "/boot" = {
+      device = "/dev/mapper/cryptroot";
+      fsType = "btrfs";
+      options = [ "subvol=boot" "compress=zstd" "noatime" ];
+    };
+    "/efi" = {
       device = "/dev/disk/by-uuid/BOOTUUID";
       fsType = "vfat";
-      options = [ "fmask=0077" "dmask=0077" ];
     };
   };
 

@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   programs.ghostty = {
@@ -35,6 +35,9 @@
     configFile.text = ''
       $env.PROMPT_COMMAND = {|| starship_prompt }
       $env.config.buffer_editor = "hx"
+      # Generate devenv shell hook into a cached script so `source` below always works.
+      # The file is pre-created by home-manager activation (see home.activation below).
+      mkdir ~/.cache/devenv
       devenv hook nu | save --force ~/.cache/devenv/hook.nu
       source ~/.cache/devenv/hook.nu
     '';
@@ -70,4 +73,12 @@
       eval "$(devenv hook zsh)"
     '';
   };
+
+  # Pre-create the devenv hook cache so nushell's `source` doesn't fail on first login
+  # when no devenv project has been entered yet.  After entering a devenv project,
+  # `devenv hook nu | save --force` will overwrite it with real content.
+  home.activation.ensureDevenvHook = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    mkdir -p "$HOME/.cache/devenv"
+    touch "$HOME/.cache/devenv/hook.nu"
+  '';
 }

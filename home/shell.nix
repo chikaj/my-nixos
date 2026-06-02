@@ -34,7 +34,15 @@
     enable = true;
     configFile.text = ''
       $env.PROMPT_COMMAND = {|| starship_prompt }
-      $env.config.buffer_editor = "hx"
+      $env.config = {
+        show_banner: false
+        buffer_editor = "hx"
+        hooks = {
+          pre_prompt = [
+            { tput cup (term size).rows 0 }
+          ]
+        }
+      }
 
       def --env spf [...args] {
         let state_home = ($env.XDG_STATE_HOME? | default $"($env.HOME)/.local/state")

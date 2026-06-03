@@ -37,8 +37,8 @@
       $env.config = {
         show_banner: false
         buffer_editor: "zed"
-        hooks = {
-          pre_prompt = [
+        hooks: {
+          pre_prompt: [
             { tput cup (term size).rows 0 }
           ]
         }

@@ -17,7 +17,7 @@
   # Swap file inside encrypted root
   swapDevices = [
     {
-      device = "/swap/swapfile";
+      device = "/swapfile";
       size = 256 * 1024 * 1024;
     }
   ];

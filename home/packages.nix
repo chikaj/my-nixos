@@ -29,9 +29,6 @@
     nerd-fonts.caskaydia-mono
 
     # Container management
-    # Wayland env vars are set globally in niri.nix (NIXOS_OZONE_WL,
-    # ELECTRON_OZONE_PLATFORM_HINT), so no wrapper needed here.
-    pkgs.podman-desktop
     docker-compose
     podman-compose
 

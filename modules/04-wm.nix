@@ -5,4 +5,7 @@
     enable = true;
     package = inputs.niri-flake.packages.${pkgs.stdenv.hostPlatform.system}.niri-unstable;
   };
+
+  # XWayland for apps that need it (e.g. podman-desktop, some Qt apps)
+  programs.xwayland.enable = true;
 }

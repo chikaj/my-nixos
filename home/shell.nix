@@ -36,7 +36,7 @@
       $env.PROMPT_COMMAND = {|| starship_prompt }
       $env.config = {
         show_banner: false
-        buffer_editor = "zed"
+        buffer_editor: "zed"
         hooks = {
           pre_prompt = [
             { tput cup (term size).rows 0 }

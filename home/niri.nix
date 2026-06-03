@@ -5,7 +5,7 @@ let
 in
 {
   programs.niri = {
-    package = inputs.niri-flake.packages.${pkgs.stdenv.hostPlatform.system}.niri-unstable;
+    package = inputs.niri.packages.${pkgs.stdenv.hostPlatform.system}.niri-unstable;
     settings = {
       spawn-at-startup = [
         {

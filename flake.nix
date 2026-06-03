@@ -1,13 +1,13 @@
 {
   description = "Multi-host NixOS configuration with Niri, Noctalia, and home-manager";
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     home-manager = {
-      url = "github:nix-community/home-manager/master";
+      url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     flake-utils.url = "github:numtide/flake-utils";
-    niri-flake = {
+    niri = {
       url = "github:sodiboo/niri-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -26,7 +26,7 @@
       "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
     ];
   };
-  outputs = inputs@{ self, nixpkgs, home-manager, niri-flake, noctalia, ... }:
+  outputs = inputs@{ self, nixpkgs, home-manager, niri, noctalia, ... }:
     let
       lib = nixpkgs.lib;
       system = "x86_64-linux";
@@ -43,7 +43,7 @@
           specialArgs = { inherit inputs; };
           modules = [
             ./hosts/${hostname}
-            niri-flake.nixosModules.niri
+            niri.nixosModules.niri
             home-manager.nixosModules.home-manager
             {
               home-manager.useGlobalPkgs = true;

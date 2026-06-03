@@ -3,7 +3,6 @@
 {
   home.packages = with pkgs; [
     vivaldi
-    vivaldi-ffmpeg-codecs
   ];
 
   xdg.mimeApps.enable = true;

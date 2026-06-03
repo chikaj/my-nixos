@@ -15,6 +15,10 @@
 
   home.stateVersion = "26.05";
 
+  home.sessionVariables = {
+    DISPLAY = ":0";
+  };
+
   fonts.fontconfig.enable = true;
 
   programs.home-manager.enable = true;

@@ -51,16 +51,21 @@
    `install.sh` already made an initial commit so the flake could evaluate, but
    you should commit the host config with a proper message and push:
 
-   First, copy your SSH public key to GitHub at
-   https://github.com/settings/keys:
+   First, set a passphrase on your SSH key (it was generated with an empty one):
+   ```bash
+   ssh-keygen -p
+   ```
+
+   Then copy your public key and add it to your Git host (GitHub, GitLab,
+   Bitbucket, Codeberg, etc.):
 
    ```bash
    cat ~/.ssh/id_ed25519.pub
    ```
 
-   Optionally, create a GitHub access token at
-   https://github.com/settings/personal-access-tokens/new (no extra permissions
-   needed) and add it to `~/.config/nix/nix.conf` to avoid API rate limiting:
+   Optionally, create a personal access token for your Git host (e.g.
+   https://github.com/settings/personal-access-tokens/new for GitHub) and add it
+   to `~/.config/nix/nix.conf` to avoid API rate limiting:
 
    ```bash
    mkdir -p ~/.config/nix

@@ -171,11 +171,14 @@
 │   └── 06-containers.nix
 ├── home/              # Shared user configuration — applies to every machine
 │   ├── default.nix
+│   ├── editor.nix
 │   ├── niri.nix
 │   ├── noctalia.nix
+│   ├── opencode.nix
+│   ├── packages.nix
+│   ├── qgis.nix
 │   ├── shell.nix
-│   ├── editor.nix
-│   └── packages.nix
+│   └── vivaldi.nix
 ├── pkgs/              # Nix package expressions for software not in nixpkgs
 │   └── opencode/
 │       └── default.nix

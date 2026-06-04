@@ -62,5 +62,8 @@
 
     # Version control
     jujutsu
+
+    # Markdown tools
+    obsidian
   ];
 }

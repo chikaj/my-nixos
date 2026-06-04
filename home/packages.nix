@@ -65,5 +65,8 @@
 
     # Markdown tools
     obsidian
+
+    # Office / Productivity
+    libreoffice
   ];
 }

@@ -51,8 +51,12 @@ done
 
 sudo mount -t vfat -o fmask=0077,dmask=0077 "$EFI" /mnt/efi
 
-# Remove any existing swapfile - the create-swapfile service will recreate it with nocow
-sudo rm -f /mnt/swapfile
+# Create swapfile with nocow for Btrfs (must exist before nixos-install activates it)
+sudo truncate -s 0 /mnt/swapfile
+sudo chattr +C /mnt/swapfile
+sudo fallocate -l 256M /mnt/swapfile
+sudo chmod 0600 /mnt/swapfile
+sudo mkswap /mnt/swapfile
 
 # === DETECT UUIDs ===
 BOOTUUID=$(sudo blkid -s UUID -o value "$EFI" 2>/dev/null || echo "")

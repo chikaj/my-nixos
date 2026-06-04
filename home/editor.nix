@@ -11,6 +11,10 @@
     };
   };
 
+  home.packages = [
+    (pkgs.writeShellScriptBin "zed" "exec ${pkgs.zed-editor}/bin/zed \"$@\"")
+  ];
+
   programs.zed-editor = {
     enable = true;
     userSettings = {

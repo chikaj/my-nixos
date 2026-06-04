@@ -31,7 +31,6 @@
     # Container management
     docker-compose
     podman-compose
-    podman-desktop
 
     # Developer environments
     devenv

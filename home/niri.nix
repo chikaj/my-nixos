@@ -17,6 +17,9 @@ in
         {
           geometry-corner-radius = { top-left = 20.0; top-right = 20.0; bottom-right = 20.0; bottom-left = 20.0; };
           clip-to-geometry = true;
+          background-effect = {
+            blur = true;
+          };
         }
       ];
 
@@ -36,7 +39,7 @@ in
       ];
 
       layout = {
-        background-color = "#1e1e2e";
+        background-color = "#1e1e2eb3";
       };
 
       environment = {
@@ -251,7 +254,7 @@ in
         "Mod+W".action."toggle-column-tabbed-display" = {};
 
         "Print".action."screenshot" = {};
-        "Shift+Print".action.spawn = [ "flameshot" "gui" ];
+        "Shift+Print".action.spawn = [ "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f -" ];
         "Ctrl+Print".action."screenshot-screen" = {};
         "Alt+Print".action."screenshot-window" = {};
 

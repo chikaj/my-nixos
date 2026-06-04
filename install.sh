@@ -51,6 +51,9 @@ done
 
 sudo mount -t vfat -o fmask=0077,dmask=0077 "$EFI" /mnt/efi
 
+# Remove any existing swapfile - the create-swapfile service will recreate it with nocow
+sudo rm -f /mnt/swapfile
+
 # === DETECT UUIDs ===
 BOOTUUID=$(sudo blkid -s UUID -o value "$EFI" 2>/dev/null || echo "")
 if [ -z "$BOOTUUID" ]; then
@@ -103,6 +106,7 @@ if [ "$HAS_SSH" = "y" ] || [ "$HAS_SSH" = "Y" ]; then
     read -p "Enter email for SSH key: " SSH_EMAIL
     SSH_EMAIL=$(echo "$SSH_EMAIL" | tr -d '\n')
     ssh-keygen -t ed25519 -C "$SSH_EMAIL" -f /tmp/id_ed25519 -N "" 2>/dev/null
+    SSH_PUBKEY=$(cat /tmp/id_ed25519.pub)
 fi
 
 # === GENERATE HARDWARE CONFIG ===
@@ -115,6 +119,9 @@ sudo rsync -a --exclude='.DS_Store' ./ /mnt/etc/nixos/
 sudo mkdir -p "/mnt/etc/nixos/hosts/$HOSTNAME"
 
 sudo mv /mnt/etc/nixos/hardware-configuration.nix "/mnt/etc/nixos/hosts/$HOSTNAME/hardware.nix"
+
+# Remove generated configs not used by the flake
+sudo rm -f /mnt/etc/nixos/configuration.nix
 
 sudo tee "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix" > /dev/null << 'NIXEOF'
 # Per-machine system config (hostname, timezone, user, filesystems, imports).
@@ -131,7 +138,7 @@ sudo tee "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix" > /dev/null << 'NIXEOF'
     description = "Desktop Wizard";
     extraGroups = [ "wheel" "networkmanager" "docker" ];
     shell = pkgs.nushell;
-    initialPassword = "PASSWORD";
+    SSH_LINE
   };
 
   home-manager.users.USERNAME = import ../../home;
@@ -212,7 +219,6 @@ NIXEOF
 sudo sed -i "s|HOSTNAME|$HOSTNAME|g" "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix"
 sudo sed -i "s|TIMEZONE|$TIMEZONE|g" "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix"
 sudo sed -i "s|USERNAME|$USERNAME|g" "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix"
-sudo sed -i "s|PASSWORD|$PASSWORD|g" "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix"
 sudo sed -i "s|BOOTUUID|$BOOTUUID|g" "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix"
 sudo sed -i "s|CRYPTUUID|$CRYPTUUID|g" "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix"
 sudo sed -i "s|USERNAME|$USERNAME|g" "/mnt/etc/nixos/hosts/$HOSTNAME/machine-specific.nix"
@@ -222,6 +228,13 @@ if [ "$HAS_NVIDIA" = "y" ] || [ "$HAS_NVIDIA" = "Y" ]; then
     sudo sed -i "s|NVIDIA_LINE|    ../../modules/02-nvidia.nix|" "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix"
 else
     sudo sed -i "/NVIDIA_LINE/d" "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix"
+fi
+
+# Handle SSH authorized keys
+if [ "$HAS_SSH" = "y" ] || [ "$HAS_SSH" = "Y" ]; then
+    sudo sed -i "s|SSH_LINE|    openssh.authorizedKeys.keys = [ \"$SSH_PUBKEY\" ];|" "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix"
+else
+    sudo sed -i "/SSH_LINE/d" "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix"
 fi
 
 rm ./disko-config.tmp.nix
@@ -240,8 +253,8 @@ sudo git -C /mnt/etc/nixos \
   commit -m "generated host config for $HOSTNAME"
 sudo nixos-install --flake /mnt/etc/nixos#"$HOSTNAME" --no-root-passwd
 
-# Remove initialPassword from host config (safe to commit after this)
-sudo sed -i '/initialPassword/d' "/mnt/etc/nixos/hosts/$HOSTNAME/default.nix"
+# Set user password directly - never written to any config file
+echo "$USERNAME:$PASSWORD" | sudo nixos-enter --root /mnt -c "chpasswd"
 
 # Fix .git ownership so the user can push from the installed system
 sudo nixos-enter --root /mnt -c "chown -R $USERNAME: /etc/nixos/.git" 2>/dev/null || true

@@ -51,6 +51,8 @@
     pavucontrol
     swayimg
     mpv
+    obs-studio
+    obs-studio-plugins.wlrobs
 
     # GUI utilities
     file-roller

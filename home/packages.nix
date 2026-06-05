@@ -32,8 +32,9 @@
     docker-compose
     podman-compose
 
-    # Developer environments
+    # Developer environments and tools
     devenv
+    slack
 
     # GUI file manager
     thunar

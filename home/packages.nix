@@ -34,6 +34,7 @@
 
     # Developer environments and tools
     devenv
+    secretspec
     slack
 
     # GUI file manager

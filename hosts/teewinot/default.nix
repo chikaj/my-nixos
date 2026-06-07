@@ -9,7 +9,7 @@
 
   users.users.chikaj = {
     isNormalUser = true;
-    description = "Desktop Wizard";
+    description = "chikaj";
     extraGroups = [ "wheel" "networkmanager" "docker" ];
     shell = pkgs.nushell;
         openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFPz0V4d63WCaYvbTwfCg+S9v6vv1M7YYRjNk9GONPhM ncurrit@gmail.com" ];

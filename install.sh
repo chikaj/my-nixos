@@ -263,6 +263,9 @@ echo "$USERNAME:$PASSWORD" | sudo nixos-enter --root /mnt -c "chpasswd"
 # Fix .git ownership so the user can push from the installed system
 sudo nixos-enter --root /mnt -c "chown -R $USERNAME: /etc/nixos/.git" 2>/dev/null || true
 
+# Fix ownership of generated host config files (nixos-install creates these as root)
+sudo nixos-enter --root /mnt -c "chown -R $USERNAME: /etc/nixos/hosts/$HOSTNAME /etc/nixos/flake.lock" 2>/dev/null || true
+
 # Deploy SSH key and switch remote to SSH
 if [ "$HAS_SSH" = "y" ] || [ "$HAS_SSH" = "Y" ]; then
     sudo mkdir -p "/mnt/home/$USERNAME/.ssh"

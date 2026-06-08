@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 
 {
   home.packages = with pkgs; [
@@ -38,6 +38,8 @@
     libsecret
     seahorse
     slack
+    nil
+    nixd
 
     # GUI file manager
     thunar

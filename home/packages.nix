@@ -35,6 +35,8 @@
     # Developer environments and tools
     devenv
     secretspec
+    libsecret
+    seahorse
     slack
 
     # GUI file manager

@@ -9,6 +9,8 @@
     ./qgis.nix
     ./opencode.nix
     ./vivaldi.nix
+    ./pgbranch.nix
+    ./pgroll.nix
     ./packages.nix
   ];
 

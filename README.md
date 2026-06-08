@@ -201,6 +201,29 @@
 - **`hosts/<hostname>/machine-specific.nix`** — packages installed only on that
   machine. Anything you don't want on your laptop goes here.
 
+### Disaster Recovery
+
+If your system breaks and won't boot, recovery is straightforward:
+
+1. Boot from a NixOS live USB on **any** machine.
+2. Clone this repository:
+   ```bash
+   git clone https://github.com/chikaj/my-nixos.git
+   cd my-nixos
+   ```
+3. Rebuild the system for your hostname:
+   ```bash
+   sudo nixos-rebuild switch --flake .#teewinot
+   ```
+   (Replace `teewinot` with your machine's hostname.)
+
+That's it. Because every machine has its own directory under `hosts/`, you can restore any machine's exact config from any other machine or a live USB. The flake auto-discovers host configs, so `--flake .#<hostname>` just works.
+
+This also means you can:
+- Build any machine's config from any other machine (cross-check without rebooting).
+- Preview changes with `nixos-rebuild build --flake .#<hostname>`.
+- Generate an ISO image to install or recover a machine remotely.
+
 ### Opencode
 
 [Opencode](https://opencode.ai) is installed on every machine via a custom

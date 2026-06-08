@@ -35,7 +35,7 @@
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecCondition = "${b} -c '! test -f /swapfile'";
+      ExecCondition = "${b} -c '! ${pkgs.util-linux}/bin/blkid -t TYPE=swap /swapfile &>/dev/null'";
       ExecStart = "${b} -c '${core}/bin/truncate -s 0 /swapfile && ${e2fs}/bin/chattr +C /swapfile && ${util}/bin/fallocate -l 256M /swapfile && ${core}/bin/chmod 0600 /swapfile && ${util}/bin/mkswap /swapfile'";
     };
   };
